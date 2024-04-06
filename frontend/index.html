@@ -12,7 +12,11 @@
 <body>
     <div class="body">
         <!-- Andriel part -->
-        <button class="button-send-file">Enviar Arquivo</button>
+        <div class="container-file">
+            <label class="label-input-file" for="input-file">Selecione seu arquivo</label>
+            <input id="input-file" type='file'>
+            <button class="button-send-file" onclick="clickButton()">Enviar Arquivo</button>
+        </div>
         <p class="text-error">Somente formatos .pcap e .pcapng</p>
         <div class="images-send-from-api">
             <!-- script.js complete this part with svg files send from API -->
