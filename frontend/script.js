@@ -12,11 +12,13 @@ function clickButton() {
         console.log(data)
         const imgFluxGraph = document.createElement("IMG");
         imgFluxGraph.src = "http://localhost:8000/graficos/fluxGraph.svg";
-        document.body.appendChild(imgFluxGraph);
+        imgFluxGraph.style.height = "100px";
+        document.querySelector(".body").appendChild(imgFluxGraph);
         
         const imgLocationsGraph = document.createElement("IMG");
         imgLocationsGraph.src = "http://localhost:8000/graficos/locationsGraph.svg";
-        document.body.appendChild(imgLocationsGraph);
+        imgLocationsGraph.style.height = "100px";
+        document.querySelector(".body").appendChild(imgLocationsGraph);
         
     }).catch(error => {
         console.log(error);
