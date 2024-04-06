@@ -11,15 +11,28 @@
 
 <body>
     <div class="body">
-        <!-- Andriel part -->
-        <div class="container-file">
-            <label class="label-input-file" for="input-file">Selecione seu arquivo</label>
-            <input id="input-file" type='file'>
-            <button class="button-send-file" onclick="clickButton()">Enviar Arquivo</button>
-        </div>
-        <p class="text-error">Somente formatos .pcap e .pcapng</p>
-        <div class="images-send-from-api">
-            <!-- script.js complete this part with svg files send from API -->
+        <div class="input-and-imgs">
+            <div class="container-file">
+                <div class="container-input">
+                    <label class="label-input-file" for="input-file">Selecione seu arquivo</label>
+                    <input id="input-file" type='file'>
+                </div>
+                <button class="button-send-file" onclick="clickButton()">Enviar</button>
+            </div>
+            <div class="above-panel"></div>
+            <p class="text-error">ATENÇÃO! Somente formatos .pcap e .pcapng</p>
+            <div class="images-send-from-api">
+                <div class="image">
+                    <p class="title">Gráfico mostrando visualmente o fluxo de dados.</p>
+                    <p class="subtitle">*A Largura da aresta indica a quantidade de vezes que ocorreu.</p>
+                    <img src="./api/graphs/fluxGraph.svg" alt="">
+                </div>
+                <!-- <div class="image">
+                <p class="title">Gráfico sinalizando visualmente a posição geográfica de cada IP.</p>
+                <p class="subtitle">*O raio do círculo maior indica a quantidade de IP's presentes naquela região.</p> 
+                <img src="./api/graphs/locationsGraph.svg" alt="">
+            </div> -->
+            </div>
         </div>
     </div>
 </body>

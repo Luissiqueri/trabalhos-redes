@@ -4,40 +4,63 @@
 }
 
 .body {
-    border: 1px solid red;
     align-items: center;
+    background-color: #aaaaaa3d;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    gap: 10px;
     justify-content: center;
     margin: 0 auto;
-    width: 30vw
+    min-height: 100vh;
+    width: 100%;
+}
+
+.input-and-imgs {
+    align-items: center;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, .1);
+    -webkit-box-shadow: 0 5px 10px 0 rgba(0, 0, 0, .1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    padding: 20px;
 }
 
 .container-file {
-    /* border: 1px solid red; */
     align-items: center;
     display: flex;
+    gap: 12px;
+    height: 35px;
     justify-content: center;
+    width: 500px;
+}
+
+.container-input {
+    height: 100%;
+    width: 70%;
 }
 
 #input-file {
-    border: 1px solid red;
+    position: absolute;
 }
 
 .label-input-file {
-    background-color: #aaaaaa2d;
+    align-items: center;
+    border: 0.5px solid #aaaaaa;
     border-radius: 5px;
+    display: flex;
     font-size: 18px;
     font-weight: 600;
     height: 100%;
+    justify-content: center;
     text-align: center;
-    display: inline-block;
     width: 100%;
 }
 
 .label-input-file:hover {
-    background-color: #aaaaaa;
+    border: 1px solid #fa7070;
     cursor: pointer;
 }
 
@@ -49,10 +72,72 @@
     font-size: 18px;
     font-weight: 600;
     height: 4vh;
-    width: 50%;
+    width: 30%;
 }
 
 .button-send-file:hover {
     background-color: #fa7070;
     cursor: pointer;
+}
+
+.above-panel {
+    border-bottom: 2px solid #aaaaaa;
+    display: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 15px 0 0 0;
+    width: 100%;
+}
+
+.above-panel p {
+    padding: 2px;
+    width: fit-content;
+}
+
+.above-panel p:hover {
+    color: #fa7070;
+    cursor: pointer;
+}
+
+.text-error {
+    color: red;
+    display: none;
+    font-size: 18px;
+    padding: 10px;
+}
+
+.image {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 1000px;
+    justify-content: center;
+    position: relative;
+}
+
+.image:last-child {
+    /* border-top: 0.5px solid #aaaaaa; */
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    position: absolute;
+    top: 25px;
+}
+
+.subtitle {
+    color: #aaaaaa;
+    font-size: 12px;
+    font-weight: 400;
+    text-align: center;
+    position: absolute;
+    top: 45px;
+}
+
+.image img {
+    height: 50%;
+    width: 100%;
+
 }
