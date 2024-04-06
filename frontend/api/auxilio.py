@@ -13,6 +13,9 @@ from shapely.geometry import Point
 import geopandas as gpd
 from geopandas import GeoDataFrame
 import pandas as pds
+import ipinfo
+
+api_key_ipinfo = "c059178683af37"
 
 def lista_pacotes(file):
     pcap = rdpcap(file)
@@ -52,7 +55,8 @@ def extract_ttl(packet):
   else:
     return 255
 
-def communication_graph(p):
+async def communication_graph(p):
+    handler = ipinfo.getHandlerAsync(api_key_ipinfo)
     graph = {}
 
     for packet in p:
@@ -82,17 +86,18 @@ def communication_graph(p):
                 G.add_edge(key, dst)
                 edgeWidth.insert(len(edgeWidth), (graph[key][dst]['times']))
 
-        #capturando pacotes vindos de ips publicos em direcao à rede local
-        #to ignorando outras mascaras para redes locais, eu sei
+                #capturando pacotes vindos de ips publicos em direcao à rede local
+                #to ignorando outras mascaras para redes locais, eu sei
                 if dst.startswith("192.168") and not key.startswith("192.168"):
                     publicIpsTTL[key] = {}
                     publicIpsTTL[key]['ttl'] = graph[key][dst]['minTTL']
-                    res = DbIpCity.get(key, api_key="free")
-                    publicIpsTTL[key]['lat'] = res.latitude
-                    publicIpsTTL[key]['lng'] = res.longitude
-                    publicIpsTTL[key]['location'] = f"{res.city}, {res.region}, {res.country}"
+                    print(f"localizando {key}")
+                    details = await handler.getDetails(key)
+                    publicIpsTTL[key]['lat'] = details.latitude
+                    publicIpsTTL[key]['lng'] = details.longitude
+                    publicIpsTTL[key]['location'] = f"{details.city}, {details.country}"
 
-    publicIpsOrderedByTTL = dict(sorted(publicIpsTTL.items(), key=lambda x: x[1], reverse=True))
+    publicIpsOrderedByTTL = dict(sorted(publicIpsTTL.items(), key=lambda x: x[1]['ttl'], reverse=True))
 
     '''print("Hosts ordenados do mais próximo para o mais longe (baseado no TTL):\n")
 
@@ -113,31 +118,35 @@ def communication_graph(p):
     ax = plt.gca()
     ax.margins(0, 0)
     plt.axis("off")
-    plt.savefig('teste.svg', format='svg')
+    print("é aqui?")
+    plt.savefig('graphs/fluxGraph.svg', format='svg')
+    print("sepah")
+    
     #plt.show()
+    return publicIpsOrderedByTTL
 
-def grafico_mapa():
+def grafico_mapa(publicIpsOrderedByTTL):
     longitude = []
     latitude = []
     for publicIp in publicIpsOrderedByTTL:
-    res = DbIpCity.get(publicIp, api_key="free")
-    longitude.append(res.longitude)
-    latitude.append(res.latitude)
+        longitude.append(publicIpsOrderedByTTL[publicIp]['lng'])
+        latitude.append(publicIpsOrderedByTTL[publicIp]['lat'])
 
     rep = [0]*len(latitude)
     for publicIp in publicIpsOrderedByTTL:
-    res = DbIpCity.get(publicIp, api_key="free")
-    for i in range(len(latitude)):
-        if (res.latitude == latitude[i] and res.longitude == longitude[i]):
-        rep[i]+=1
-
+        lat = publicIpsOrderedByTTL[publicIp]['lat']
+        lng = publicIpsOrderedByTTL[publicIp]['lng']
+        for i in range(len(latitude)):
+            if (lat == latitude[i] and lng == longitude[i]):
+                rep[i]+=1
     data = {'Longitude': longitude, 'Latitude': latitude, 'Repeticoes': rep}
     df = pd.DataFrame(data)
     geometry = [Point(xy) for xy in zip(df['Longitude'], df['Latitude'])]
     gdf = GeoDataFrame(df, geometry=geometry)
     world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    gdf.plot(ax=world.plot(figsize=(10, 6)), marker='o', color='red', markersize=df['Repeticoes']*5);
-
+    ax = world.plot(figsize=(10, 6))
+    gdf.plot(ax=ax, marker='o', color='red', markersize=df['Repeticoes']*5);
+    ax.get_figure().savefig('graphs/locationsGraph.svg')
 
 
 
