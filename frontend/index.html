@@ -13,25 +13,33 @@
     <div class="body">
         <div class="input-and-imgs">
             <div class="container-file">
+                <div class="container-load">
+                    <img class="load-icon" src="./assets/atualizar.png" alt="">
+                </div>
                 <div class="container-input">
                     <label class="label-input-file" for="input-file">Selecione seu arquivo</label>
                     <input id="input-file" type='file'>
+                    <img class="close-icon" src="./assets/remover.png" alt="" onclick="removeFile()">
                 </div>
-                <button class="button-send-file" onclick="clickButton()">Enviar</button>
+                <button class="button-send-file" onclick="clickButton()" disabled>Enviar</button>
             </div>
             <div class="above-panel"></div>
             <p class="text-error">ATENÇÃO! Somente formatos .pcap e .pcapng</p>
             <div class="images-send-from-api">
-                <div class="image">
-                    <p class="title">Gráfico mostrando visualmente o fluxo de dados.</p>
-                    <p class="subtitle">*A Largura da aresta indica a quantidade de vezes que ocorreu.</p>
-                    <img src="./api/graphs/fluxGraph.svg" alt="">
+                <div class="image img-1">
+                    <!-- <p class="title">Gráfico mostrando visualmente o fluxo de dados.</p> -->
+                    <!-- <p class="subtitle">*A Largura da aresta indica a quantidade de vezes que ocorreu.</p> -->
+                    <!-- <img src="./api/graphs/fluxGraph.svg" alt=""> -->
                 </div>
-                <!-- <div class="image">
-                <p class="title">Gráfico sinalizando visualmente a posição geográfica de cada IP.</p>
-                <p class="subtitle">*O raio do círculo maior indica a quantidade de IP's presentes naquela região.</p> 
-                <img src="./api/graphs/locationsGraph.svg" alt="">
-            </div> -->
+                <div class="image img-2">
+                    <!-- <p class="title"> -->
+                        <!-- Gráfico sinalizando visualmente a posição geográfica de cada IP. -->
+                    <!-- </p> -->
+                    <!-- <p class="subtitle"> -->
+                        <!-- *O raio do círculo maior indica a quantidade de IP's presentes naquela região. -->
+                    <!-- </p> -->
+                    <!-- <img src="./api/graphs/locationsGraph.svg" alt=""> -->
+                </div>
             </div>
         </div>
     </div>

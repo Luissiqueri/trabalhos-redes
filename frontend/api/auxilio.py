@@ -91,7 +91,7 @@ async def communication_graph(p):
                 if dst.startswith("192.168") and not key.startswith("192.168"):
                     publicIpsTTL[key] = {}
                     publicIpsTTL[key]['ttl'] = graph[key][dst]['minTTL']
-                    print(f"localizando {key}")
+                    # print(f"localizando {key}")
                     details = await handler.getDetails(key)
                     publicIpsTTL[key]['lat'] = details.latitude
                     publicIpsTTL[key]['lng'] = details.longitude
@@ -118,9 +118,9 @@ async def communication_graph(p):
     ax = plt.gca()
     ax.margins(0, 0)
     plt.axis("off")
-    print("é aqui?")
+    # print("é aqui?")
     plt.savefig('graphs/fluxGraph.svg', format='svg')
-    print("sepah")
+    # print("sepah")
     
     #plt.show()
     return publicIpsOrderedByTTL
@@ -158,7 +158,7 @@ def contagem_pacotes(pcap, packet_count):
                 packet_count[ether_type] = 0
             packet_count[ether_type] += 1
 
-    print(f"contagem de pacotes{packet_count}")
+    # print(f"contagem de pacotes{packet_count}")
 
 def grafico_contagem_pacotes(packet_count):
     x_values = [str(hex(ether_type)) for ether_type in packet_count.keys()]

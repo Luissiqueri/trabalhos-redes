@@ -28,6 +28,11 @@
     padding: 20px;
 }
 
+.load-icon {
+    width: 45px;
+    rotate: "true";
+}
+
 .container-file {
     align-items: center;
     display: flex;
@@ -39,11 +44,24 @@
 
 .container-input {
     height: 100%;
+    position: relative;
     width: 70%;
 }
 
 #input-file {
     position: absolute;
+}
+
+.close-icon {
+    display: none;
+    position: absolute;
+    height: 35px;
+    right: 0;
+    top: 2px;
+}
+
+.close-icon:hover {
+    cursor: pointer;
 }
 
 .label-input-file {
@@ -66,7 +84,7 @@
 
 .button-send-file {
     color: #fff;
-    background-color: #ffb996;  
+    background-color: #ffb996;
     border-style: none;
     border-radius: 10px;
     font-size: 18px;
@@ -78,6 +96,11 @@
 .button-send-file:hover {
     background-color: #fa7070;
     cursor: pointer;
+}
+
+.button-send-file:disabled {
+    background-color: #ffb99673;
+    cursor: default;
 }
 
 .above-panel {
@@ -113,10 +136,6 @@
     width: 1000px;
     justify-content: center;
     position: relative;
-}
-
-.image:last-child {
-    /* border-top: 0.5px solid #aaaaaa; */
 }
 
 .title {
