@@ -4,13 +4,12 @@ const abovePanel = document.querySelector('.above-panel');
 const closeIcon = document.querySelector('.close-icon');
 const buttonSendFile = document.querySelector('.button-send-file');
 let lengthGraphs = 0;
-let view = 1;
+
 function setView(value) {
-    const graph = document.querySelector(`.${value}`);
-    graph.style.display = "flex";
-    for (let i = 0; i < lengthGraphs; i++) {
-        
-    }
+    const viewed = document.querySelector(`.view`);
+    viewed.classList.remove("view");
+    const containerGraph = document.querySelector(`.img-${value}`);
+    containerGraph.classList.add("view");
 }
 
 input.style.opacity = 0;
@@ -40,7 +39,7 @@ function clickButton() {
         body: formData
     }).then(response => response.json())
         .then(data => {
-            
+
             // console.log(data)
             const imgFluxGraph = document.createElement("IMG");
             imgFluxGraph.src = "http://localhost:8000/graficos/fluxGraph.svg";
@@ -51,7 +50,7 @@ function clickButton() {
             title.innerHTML = "Gráfico mostrando visualmente o fluxo de dados.";
             title.className = "title";
             document.querySelector(".img-1").appendChild(title);
-            
+
             let subtitle = document.createElement("p");
             subtitle.innerHTML = "*A Largura da aresta indica a quantidade de vezes que ocorreu.";
             subtitle.className = "subtitle";
@@ -66,7 +65,7 @@ function clickButton() {
             title.innerHTML = "Gráfico sinalizando visualmente a posição geográfica de cada IP.";
             title.className = "title";
             document.querySelector(".img-2").appendChild(title);
-            
+
             subtitle = document.createElement("p");
             subtitle.innerHTML = "*O raio do círculo maior indica a quantidade de IP's presentes naquela região.";
             subtitle.className = "subtitle";
@@ -77,9 +76,9 @@ function clickButton() {
             for (let i = 0; i < lengthGraphs; i++) {
                 const paragraph = document.createElement("p");
                 paragraph.innerHTML = `Gráfico ${i + 1}`;
-                paragraph.classList.add(`${i}`);
-                paragraph.onclick = "setValue(`${i}`)";
+                paragraph.onclick = function() { setView(`${i + 1}`) };
                 document.querySelector(".above-panel").appendChild(paragraph);
+
             }
 
         }).catch(error => {

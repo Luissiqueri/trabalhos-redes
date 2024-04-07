@@ -160,3 +160,11 @@
     width: 100%;
 
 }
+
+.img-1 .img-2 {
+    display: none;
+}
+
+.view {
+    display: flex;
+}
