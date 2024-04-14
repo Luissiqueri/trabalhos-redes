@@ -26,11 +26,14 @@
     gap: 10px;
     justify-content: center;
     padding: 20px;
+    height: 300px;
+    width: 500px;
 }
 
 .load-icon {
     width: 45px;
     rotate: "true";
+    display: none;
 }
 
 .container-file {
