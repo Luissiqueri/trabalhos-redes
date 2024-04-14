@@ -1,4 +1,5 @@
 const input = document.querySelector("#input-file");
+const inputProtocol = document.querySelector("#SelectProtocol");
 const label = document.querySelector('.label-input-file');
 const abovePanel = document.querySelector('.above-panel');
 const closeIcon = document.querySelector('.close-icon');
@@ -33,55 +34,68 @@ function removeFile() {
 
 function clickButton() {
     const formData = new FormData();
-    formData.append("file", input.files[0])
-    fetch('http://localhost:8000/uploadfile', {
+    formData.append("file", input.files[0]);
+    const protocol = inputProtocol.value;
+    fetch(`http://localhost:8000/uploadfile/${protocol}`, {
         method: 'POST',
         body: formData
-    }).then(response => response.json())
-        .then(data => {
+    })
+    .then(async response => showResults(await response.json(), protocol))
+    .catch(error => {
+        console.log(error);
+    });
+}
 
-            // console.log(data)
-            const imgFluxGraph = document.createElement("IMG");
-            imgFluxGraph.src = "http://localhost:8000/graficos/fluxGraph.svg";
-            document.querySelector(".img-1").appendChild(imgFluxGraph);
-            lengthGraphs++;
+function showResults(jsonResposnse, protocol) {
+    if (protocol == "IP") {
+        showIPData();
+    } else if (protocol == "ARP") {
+        showARPData(jsonResposnse);
+    }
+}
 
-            let title = document.createElement("p");
-            title.innerHTML = "Gráfico mostrando visualmente o fluxo de dados.";
-            title.className = "title";
-            document.querySelector(".img-1").appendChild(title);
+function showIPData() {
+    const imgFluxGraph = document.createElement("IMG");
+    imgFluxGraph.src = "http://localhost:8000/graficos/fluxGraph.svg";
+    document.querySelector(".img-1").appendChild(imgFluxGraph);
+    lengthGraphs++;
 
-            let subtitle = document.createElement("p");
-            subtitle.innerHTML = "*A Largura da aresta indica a quantidade de vezes que ocorreu.";
-            subtitle.className = "subtitle";
-            document.querySelector(".img-1").appendChild(subtitle);
+    let title = document.createElement("p");
+    title.innerHTML = "Gráfico mostrando visualmente o fluxo de dados.";
+    title.className = "title";
+    document.querySelector(".img-1").appendChild(title);
 
-            const imgLocationsGraph = document.createElement("IMG");
-            imgLocationsGraph.src = "http://localhost:8000/graficos/locationsGraph.svg";
-            document.querySelector(".img-2").appendChild(imgLocationsGraph);
-            lengthGraphs++;
+    let subtitle = document.createElement("p");
+    subtitle.innerHTML = "*A Largura da aresta indica a quantidade de vezes que ocorreu.";
+    subtitle.className = "subtitle";
+    document.querySelector(".img-1").appendChild(subtitle);
 
-            title = document.createElement("p");
-            title.innerHTML = "Gráfico sinalizando visualmente a posição geográfica de cada IP.";
-            title.className = "title";
-            document.querySelector(".img-2").appendChild(title);
+    const imgLocationsGraph = document.createElement("IMG");
+    imgLocationsGraph.src = "http://localhost:8000/graficos/locationsGraph.svg";
+    document.querySelector(".img-2").appendChild(imgLocationsGraph);
+    lengthGraphs++;
 
-            subtitle = document.createElement("p");
-            subtitle.innerHTML = "*O raio do círculo maior indica a quantidade de IP's presentes naquela região.";
-            subtitle.className = "subtitle";
-            document.querySelector(".img-2").appendChild(subtitle);
+    title = document.createElement("p");
+    title.innerHTML = "Gráfico sinalizando visualmente a posição geográfica de cada IP.";
+    title.className = "title";
+    document.querySelector(".img-2").appendChild(title);
+
+    subtitle = document.createElement("p");
+    subtitle.innerHTML = "*O raio do círculo maior indica a quantidade de IP's presentes naquela região.";
+    subtitle.className = "subtitle";
+    document.querySelector(".img-2").appendChild(subtitle);
 
 
-            abovePanel.style.display = "flex";
-            for (let i = 0; i < lengthGraphs; i++) {
-                const paragraph = document.createElement("p");
-                paragraph.innerHTML = `Gráfico ${i + 1}`;
-                paragraph.onclick = function() { setView(`${i + 1}`) };
-                document.querySelector(".above-panel").appendChild(paragraph);
+    abovePanel.style.display = "flex";
+    for (let i = 0; i < lengthGraphs; i++) {
+        const paragraph = document.createElement("p");
+        paragraph.innerHTML = `Gráfico ${i + 1}`;
+        paragraph.onclick = function() { setView(`${i + 1}`) };
+        document.querySelector(".above-panel").appendChild(paragraph);
+    }
+}
 
-            }
-
-        }).catch(error => {
-            console.log(error);
-        });
+function showARPData(jsonResposnse) {
+    //jsonResponse = json contendo a tabela montada a partir dos pacotes
+    //insira aqui o codigo necessario para exibir as informacoes recebidas
 }

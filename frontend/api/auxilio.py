@@ -205,3 +205,30 @@ def grafico_ocorrencia_ipsrc(p):
     plotly.offline.plot({"data":[plotly.graph_objs.Bar(x=xData, y=yData)],
     "layout":plotly.graph_objs.Layout(title="Source IP Occurrence",
     xaxis=dict(title="Src IP"), yaxis=dict(title="Count"))})
+
+def getCompanyByMACAdress(macAdress):
+    try:
+        req = requests.get(f"http://www.macvendorlookup.com/api/v2/{macAdress}") 
+        return req.json()[0]['company']
+    except Exception as e:
+        return "<desconhecido>"
+
+def getSrcMAC(packet):
+    return packet[ARP].hwsrc
+
+def getSrcIP(packet):
+    return packet[ARP].psrc
+
+def getDstMAC(packet):
+    return packet[ARP].hwdst
+
+def getDstIP(packet):
+    return packet[ARP].pdst
+
+def getARPInfo(p):
+    tabela = [{"ip": "x.x.x.x", "mac": "abcdef", "company": "empresa X"}] #apenas para fins de exemplo
+
+    #montar a tabela aqui
+
+    #retornar tabela
+    return tabela

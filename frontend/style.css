@@ -26,8 +26,6 @@
     gap: 10px;
     justify-content: center;
     padding: 20px;
-    height: 300px;
-    width: 500px;
 }
 
 .load-icon {
@@ -170,4 +168,20 @@
 
 .view {
     display: flex;
+}
+
+.container-protocol  > div{
+    font-size: 10px;
+    color: #aaaaaa;
+    font-weight: lighter;
+}
+
+.container-protocol select {
+    font-size: 16px;
+    background-color: white;
+    border: 1px solid #aaaaaa;
+    border-radius: 10px;
+    text-align: center;
+    width: auto;
+    padding: 3px;
 }

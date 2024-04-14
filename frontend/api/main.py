@@ -3,6 +3,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import magic
+import json
 
 import auxilio as aux
 
@@ -13,21 +14,24 @@ app = FastAPI()
 app.mount("/recursos", StaticFiles(directory="../",html = True), name="static")
 app.mount("/graficos", StaticFiles(directory="graphs",html = True), name="graphs")
 
-async def plot_graph(filename):
+async def proccessIP(filename):
     p = aux.lista_pacotes(filename)
     publicIps = await aux.communication_graph(p)
     aux.grafico_mapa(publicIps)
+    return {}
 
-@app.post("/uploadfile")
-async def upload_file(file: UploadFile = File(...)):
-    if file.filename.endswith('.pcap') and not file.filename.endswith('.pcapng'):
-        raise HTTPException(status_code = 400, detail = "Apenas arquivos do tipo .pcapng")
-    
+async def proccessARP(filename):
+    p = aux.lista_pacotes(filename)
+    return aux.getARPInfo(p)
+
+@app.post("/uploadfile/{protocol}")
+async def upload_file(protocol: str, file: UploadFile = File(...)):
     try:
         with open(file.filename, "wb") as buffer:
             buffer.write(await file.read())
-            await plot_graph(file.filename)
-        return{"dados" : {}} #insira aqui os dados a serem retornados
-    
+            if protocol == "IP":
+                return await proccessIP(file.filename)
+            if protocol == "ARP":
+                return await proccessARP(file.filename)
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
