@@ -213,22 +213,64 @@ def getCompanyByMACAdress(macAdress):
     except Exception as e:
         return "<desconhecido>"
 
-def getSrcMAC(packet):
-    return packet[ARP].hwsrc
-
 def getSrcIP(packet):
-    return packet[ARP].psrc
-
-def getDstMAC(packet):
-    return packet[ARP].hwdst
-
+    if ARP in packet:
+        return packet[ARP].psrc
+    else:
+        return "No IP"
+    
 def getDstIP(packet):
-    return packet[ARP].pdst
+    if ARP in packet:
+        return packet[ARP].pdst
+    else:
+        return "No IP"
+
+def getSrcMAC(packet):
+    if ARP in packet:
+        return packet[ARP].hwsrc
+    else:
+        return "No MAC"
+ 
+def getDstMAC(packet):
+    if ARP in packet:
+        return packet[ARP].hwdst
+    else:
+        return "No MAC"
+
 
 def getARPInfo(p):
-    tabela = [{"ip": "x.x.x.x", "mac": "abcdef", "company": "empresa X"}] #apenas para fins de exemplo
 
-    #montar a tabela aqui
+    SrcIP = []
+    DstIP = []
+    SrcMAC = []
+    DstMAC = []
+    company = []
 
-    #retornar tabela
+    for packet in p:
+        print(getDstIP(packet))
+        print(getDstMAC(packet))
+        SrcIP.append(getSrcIP(packet))
+        DstIP.append(getDstIP(packet))
+        SrcMAC.append(getSrcMAC(packet))
+        DstMAC.append(getDstMAC(packet))
+
+    IPs = SrcIP + DstIP
+    MACs = SrcMAC + DstMAC
+    
+    '''print(IPs[502])
+    print(IPs[503])
+    print(MACs[502])
+    print(MACs[503])'''
+    
+
+    df = pd.DataFrame((zip(IPs,MACs)), columns = ["IPs", "MACs"])
+    #df.drop_duplicates("IPs", inplace = True)
+
+    for m in df["MACs"]:
+        company.append(getCompanyByMACAdress(m))
+    
+    df.insert(2, "Company", company)
+    print(df)
+    tabela = df.to_dict()
+ 
     return tabela
