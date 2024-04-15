@@ -206,6 +206,8 @@ def grafico_ocorrencia_ipsrc(p):
     "layout":plotly.graph_objs.Layout(title="Source IP Occurrence",
     xaxis=dict(title="Src IP"), yaxis=dict(title="Count"))})
 
+#precisamos ve se isto esta funcionando
+#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 def getCompanyByMACAdress(macAdress):
     try:
         req = requests.get(f"http://www.macvendorlookup.com/api/v2/{macAdress}") 
