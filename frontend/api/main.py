@@ -23,9 +23,10 @@ async def proccessIP(filename):
 
 async def proccessARP(filename):
     p = aux.lista_pacotes(filename)
-    aux.getARPInfo(p)
+    return aux.getARPInfo(p)
 
-"""@app.post("/uploadfile/{protocol}")
+
+@app.post("/uploadfile/{protocol}")
 async def upload_file(protocol: str, file: UploadFile = File(...)):
     try:
         with open(file.filename, "wb") as buffer:
@@ -35,11 +36,11 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
             if protocol == "ARP":
                 return await proccessARP(file.filename)
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = str(e))"""
+        raise HTTPException(status_code = 500, detail = str(e))
     
 
 """async def main():
     filename = 'arp.pcap'
     await proccessARP(filename)"""
 
-asyncio.run(proccessARP("arp.pcap"))
+#asyncio.run(proccessARP("arp.pcap"))

@@ -14,6 +14,7 @@ import geopandas as gpd
 from geopandas import GeoDataFrame
 import pandas as pds
 import ipinfo
+import json
 
 api_key_ipinfo = "c059178683af37"
 
@@ -249,8 +250,8 @@ def getARPInfo(p):
     company = []
 
     for packet in p:
-        print(getDstIP(packet))
-        print(getDstMAC(packet))
+        #print(getDstIP(packet))
+        #print(getDstMAC(packet))
         SrcIP.append(getSrcIP(packet))
         DstIP.append(getDstIP(packet))
         SrcMAC.append(getSrcMAC(packet))
@@ -267,12 +268,15 @@ def getARPInfo(p):
 
     df = pd.DataFrame((zip(IPs,MACs)), columns = ["IPs", "MACs"])
     #df.drop_duplicates("IPs", inplace = True)
-
     for m in df["MACs"]:
         company.append(getCompanyByMACAdress(m))
-    
     df.insert(2, "Company", company)
-    print(df)
+    
+    # print(df)
+
     tabela = df.to_dict()
- 
     return tabela
+    
+    # json_object = json.dumps(tabela, indent = 4) 
+    # print(json_object)
+    #return json_object

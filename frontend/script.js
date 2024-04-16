@@ -7,6 +7,8 @@ const buttonSendFile = document.querySelector('.button-send-file');
 const loadIcon = document.querySelector('.load-icon');
 const inputView = document.querySelector('.container-input');
 const selectView = document.querySelector('.container-protocol');
+const image1 = document.querySelector('.img-1');
+const image2 = document.querySelector('.img-2');
 let lengthGraphs = 0;
 
 function setView(value) {
@@ -32,31 +34,36 @@ function removeFile() {
     label.innerHTML = "Selecione seu arquivo";
     closeIcon.style.display = "none";
     buttonSendFile.disabled = true;
+    input.value = null;
 
 }
 
 function clickButton() {
-    selectView.classList.add("hidden");
-    inputView.classList.add("hidden");
-    buttonSendFile.classList.add("hidden");
+    while (image1.hasChildNodes()) {
+        image1.removeChild(image1.firstChild);
+    }
+    while (image2.hasChildNodes()) {
+        image2.removeChild(image2.firstChild);
+    }
     loadIcon.classList.remove("hidden");
+
     const formData = new FormData();
     formData.append("file", input.files[0]);
     const protocol = inputProtocol.value;
     fetch(`http://localhost:8000/uploadfile/${protocol}`, {
         method: 'POST',
-        body: formData
+        body: formData,
     })
-    .then(async response => showResults(await response.json(), protocol))
-    .catch(error => {
-        console.log(error);
-    });
+        .then(
+            async (response) => showResults(await response.json(), protocol)
+        )
+        .catch(error => {
+            loadIcon.classList.add("hidden");
+            console.log(error);
+        });
 }
 
 function showResults(jsonResposnse, protocol) {
-    selectView.classList.remove("hidden");
-    inputView.classList.remove("hidden");
-    buttonSendFile.classList.remove("hidden");
     loadIcon.classList.add("hidden");
     if (protocol == "IP") {
         showIPData();
@@ -97,17 +104,17 @@ function showIPData() {
     document.querySelector(".img-2").appendChild(subtitle);
 
 
-    abovePanel.style.display = "flex";
-    for (let i = 0; i < lengthGraphs; i++) {
-        const paragraph = document.createElement("p");
-        paragraph.innerHTML = `Gráfico ${i + 1}`;
-        paragraph.onclick = function() { setView(`${i + 1}`) };
-        document.querySelector(".above-panel").appendChild(paragraph);
-    }
+    // abovePanel.style.display = "flex";
+    // for (let i = 0; i < lengthGraphs; i++) {
+    //     const paragraph = document.createElement("p");
+    //     paragraph.innerHTML = `Gráfico ${i + 1}`;
+    //     paragraph.onclick = function () { setView(`${i + 1}`) };
+    //     document.querySelector(".above-panel").appendChild(paragraph);
+    // }
 }
 
-function showARPData(jsonResposnse) {
-    console.log(jsonResposnse);
+function showARPData(jsonResponse) {
+    console.log(jsonResponse);
     //jsonResponse = json contendo a tabela montada a partir dos pacotes
     //insira aqui o codigo necessario para exibir as informacoes recebidas
 }
