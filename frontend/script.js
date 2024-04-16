@@ -4,6 +4,9 @@ const label = document.querySelector('.label-input-file');
 const abovePanel = document.querySelector('.above-panel');
 const closeIcon = document.querySelector('.close-icon');
 const buttonSendFile = document.querySelector('.button-send-file');
+const loadIcon = document.querySelector('.load-icon');
+const inputView = document.querySelector('.container-input');
+const selectView = document.querySelector('.container-protocol');
 let lengthGraphs = 0;
 
 function setView(value) {
@@ -33,6 +36,10 @@ function removeFile() {
 }
 
 function clickButton() {
+    selectView.classList.add("hidden");
+    inputView.classList.add("hidden");
+    buttonSendFile.classList.add("hidden");
+    loadIcon.classList.remove("hidden");
     const formData = new FormData();
     formData.append("file", input.files[0]);
     const protocol = inputProtocol.value;
@@ -47,6 +54,10 @@ function clickButton() {
 }
 
 function showResults(jsonResposnse, protocol) {
+    selectView.classList.remove("hidden");
+    inputView.classList.remove("hidden");
+    buttonSendFile.classList.remove("hidden");
+    loadIcon.classList.add("hidden");
     if (protocol == "IP") {
         showIPData();
     } else if (protocol == "ARP") {
@@ -96,6 +107,7 @@ function showIPData() {
 }
 
 function showARPData(jsonResposnse) {
+    console.log(jsonResposnse);
     //jsonResponse = json contendo a tabela montada a partir dos pacotes
     //insira aqui o codigo necessario para exibir as informacoes recebidas
 }

@@ -1,4 +1,13 @@
+:root {
+    --deg-rotation-animate: 72deg;
+}
+
+.hidden {
+    display: none;
+}
+
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
@@ -28,10 +37,14 @@
     padding: 20px;
 }
 
+@keyframes loading {
+    from {rotate: 0;}
+    to {rotate: 360deg;}
+    
+}
 .load-icon {
     width: 45px;
-    rotate: "true";
-    display: none;
+    animation: loading 1s infinite;
 }
 
 .container-file {
@@ -76,6 +89,7 @@
     justify-content: center;
     text-align: center;
     width: 100%;
+    height: 40px;
 }
 
 .label-input-file:hover {
@@ -90,7 +104,7 @@
     border-radius: 10px;
     font-size: 18px;
     font-weight: 600;
-    height: 4vh;
+    height: 40px;
     width: 30%;
 }
 
