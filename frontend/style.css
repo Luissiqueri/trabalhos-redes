@@ -3,13 +3,10 @@
 }
 
 * {
+    transition: all 0.2s;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-body {
-    width: 100vw;
 }
 
 .main {
@@ -19,130 +16,116 @@ body {
     flex-direction: column;
     gap: 10px;
     justify-content: center;
-    margin: 0 auto;
     min-height: 100vh;
     width: 100%;
 }
 
-.input-and-imgs {
-    align-items: center;
+.all--container {
     background-color: #fff;
-    border-radius: 20px;
+    border-radius: 5px;
     box-shadow: 0 5px 10px 0 rgba(0, 0, 0, .1);
     -webkit-box-shadow: 0 5px 10px 0 rgba(0, 0, 0, .1);
     display: flex;
     flex-direction: column;
-    gap: 10px;
     justify-content: center;
-    padding: 20px;
-    width: 90%;
-}
-
-@keyframes loading {
-    from {rotate: 0;}
-    to {rotate: 360deg;}
-    
-}
-.load-icon {
-    width: 45px;
-    animation: loading 1s infinite;
-}
-
-.container-file {
     align-items: center;
+    padding: 20px 30px 20px 30px;
+    min-width: fit-content;
+}
+
+.file--container {
     display: flex;
     gap: 12px;
+    align-items: center;
     height: 35px;
     justify-content: center;
-    width: 500px;
+    width: fit-content;
 }
 
-.container-input {
+.input--file--container {
     height: 100%;
     position: relative;
-    width: 70%;
+    width: 250px;
 }
 
-#input-file {
-    position: absolute;
-}
-
-.close-icon {
-    display: none;
-    position: absolute;
-    height: 35px;
-    right: 0;
-    top: 2px;
-}
-
-.close-icon:hover {
-    cursor: pointer;
-}
-
-.label-input-file {
+.input--file--label {
     align-items: center;
-    border: 0.5px solid #aaaaaa;
+    border: 1px solid #EBEBEB;
     border-radius: 5px;
     display: flex;
     font-size: 18px;
     font-weight: 600;
-    height: 100%;
     justify-content: center;
-    text-align: center;
+    text-align: left;
     width: 100%;
-    height: 40px;
+    height: 35px;
 }
 
-.label-input-file:hover {
+.input--file--label:hover {
     border: 1px solid #fa7070;
     cursor: pointer;
 }
 
-.button-send-file {
+#input--file {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.icon--close {
+    display: none;
+    position: absolute;
+    height: 25px;
+    right: 0;
+    top: 6px;
+}
+
+.icon--close:hover {
+    cursor: pointer;
+}
+
+.protocol--container>div {
+    display: none;
+    font-size: 16px;
+    color: #aaaaaa;
+    font-weight: lighter;
+}
+
+.protocol--container select {
+    font-size: 16px;
+    background-color: white;
+    border: 1px solid #EBEBEB;
+    border-radius: 5px;
+    text-align: left;
+    width: 70px;
+    height: 35px;
+    padding: 3px 3px 3px 5px;
+}
+
+.send--file--button {
     color: #fff;
     background-color: #ffb996;
     border-style: none;
-    border-radius: 10px;
-    font-size: 18px;
+    border-radius: 5px;
+    font-size: 16px;
     font-weight: 600;
-    height: 40px;
+    height: 35px;
     width: 30%;
 }
 
-.button-send-file:hover {
+.send--file--button:hover {
     background-color: #fa7070;
     cursor: pointer;
 }
 
-.button-send-file:disabled {
+.send--file--button:disabled {
     background-color: #ffb99673;
     cursor: default;
 }
 
-.above-panel {
-    border-bottom: 2px solid #aaaaaa;
-    display: none;
-    font-size: 18px;
-    font-weight: 600;
-    padding: 15px 0 0 0;
-    width: 100%;
-}
-
-.above-panel p {
-    padding: 2px;
-    width: fit-content;
-}
-
-.above-panel p:hover {
-    color: #fa7070;
-    cursor: pointer;
-}
-
-.text-error {
-    color: red;
-    display: none;
-    font-size: 18px;
-    padding: 10px;
+.icon--load {
+    width: 25px;
+    animation: loading 1s infinite;
 }
 
 .image {
@@ -152,6 +135,12 @@ body {
     width: 100%;
     justify-content: center;
     position: relative;
+}
+
+.image img {
+    height: 50%;
+    width: 100%;
+
 }
 
 .title {
@@ -171,32 +160,29 @@ body {
     top: 45px;
 }
 
-.image img {
-    height: 50%;
-    width: 100%;
-
+.Table {
+    padding: 10px;
 }
 
-.img-1 .img-2 {
-    display: none;
+table {
+    border-spacing: 0.5rem;
+    border-collapse: collapse;
+    text-align: left;
 }
 
-.view {
-    display: flex;
+td,
+th {
+    border: 1px solid #999;
+    padding: 0.5rem;
 }
 
-.container-protocol  > div{
-    font-size: 10px;
-    color: #aaaaaa;
-    font-weight: lighter;
-}
+@keyframes loading {
+    from {
+        rotate: 0;
+    }
 
-.container-protocol select {
-    font-size: 16px;
-    background-color: white;
-    border: 1px solid #aaaaaa;
-    border-radius: 10px;
-    text-align: center;
-    width: auto;
-    padding: 3px;
+    to {
+        rotate: 360deg;
+    }
+
 }

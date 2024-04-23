@@ -1,10 +1,10 @@
-from typing import Union
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-import magic
-import json
+# from typing import Union
 import asyncio
+# from pydantic import BaseModel
+# import magic
+# import json
 
 import auxilio as aux
 
@@ -37,10 +37,8 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
                 return await proccessARP(file.filename)
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
-    
+
 
 """async def main():
     filename = 'arp.pcap'
     await proccessARP(filename)"""
-
-#asyncio.run(proccessARP("arp.pcap"))

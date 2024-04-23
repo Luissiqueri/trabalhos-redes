@@ -11,30 +11,38 @@
 
 <body>
     <div class="main">
-        <div class="input-and-imgs">
-            <div class="container-file">
-                <div class="container-input">
-                    <label class="label-input-file" for="input-file">Selecione seu arquivo</label>
-                    <input id="input-file" type='file'>
-                    <img class="close-icon" src="./assets/remover.png" alt="" onclick="removeFile()">
+        <div class="all--container">
+            <div class="file--container">
+                <div class="input--file--container">
+                    <label class="input--file--label" for="input--file">Selecione seu arquivo</label>
+                    <input id="input--file" type='file'>
+                    <img class="icon--close" src="./assets/remover.png" alt="" onclick="removeFile()">
                 </div>
-                <div class="container-protocol">
+                <div class="protocol--container">
                     <div>Protocolo</div>
-                    <select id="SelectProtocol">
+                    <select id="protocol--select">
                         <option>IP</option>
                         <option>ARP</option>
                     </select>
                 </div>
-                <button class="button-send-file" onclick="clickButton()" disabled>Enviar</button>
-                <div class="container-load">
-                    <img class="load-icon hidden" src="./assets/atualizar.png" alt="">
+                <button class="send--file--button" onclick="clickButton()" disabled>Enviar</button>
+                <div class="icon--load--container">
+                    <img class="icon--load hidden" src="./assets/atualizar.png" alt="">
                 </div>
             </div>
-            <div class="images-send-from-api">
-                <div class="image img-1 view">
+            <div class="images--api hidden">
+                <div class="image img-1">
                 </div>
                 <div class="image img-2">
                 </div>
+            </div>
+            <div class="Table hidden">
+                <table class="table--container">
+                    <thead class="table--header">
+                    </thead>
+                    <tbody class="table--body">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -211,10 +211,10 @@ def grafico_ocorrencia_ipsrc(p):
 #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 def getCompanyByMACAdress(macAdress):
     try:
-        req = requests.get(f"http://www.macvendorlookup.com/api/v2/{macAdress}") 
+        req = requests.get(f"http://www.macvendorlookup.com/api/v2/{macAdress}")
         return req.json()[0]['company']
     except Exception as e:
-        return "<desconhecido>"
+        return "&lt;desconhecido&gt;"
 
 def getSrcIP(packet):
     if ARP in packet:
@@ -267,7 +267,7 @@ def getARPInfo(p):
     
 
     df = pd.DataFrame((zip(IPs,MACs)), columns = ["IPs", "MACs"])
-    #df.drop_duplicates("IPs", inplace = True)
+    df.drop_duplicates("IPs", inplace = True)
     for m in df["MACs"]:
         company.append(getCompanyByMACAdress(m))
     df.insert(2, "Company", company)
