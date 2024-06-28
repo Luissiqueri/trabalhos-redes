@@ -25,6 +25,8 @@ async def proccessARP(filename):
     p = aux.lista_pacotes(filename)
     return aux.getARPInfo(p)
 
+async def processRIP(filename):
+    return aux.handleWithRIP(filename);
 
 @app.post("/uploadfile/{protocol}")
 async def upload_file(protocol: str, file: UploadFile = File(...)):
@@ -35,6 +37,8 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
                 return await proccessIP(file.filename)
             if protocol == "ARP":
                 return await proccessARP(file.filename)
+            if protocol == "RIP":
+                return await processRIP(file.filename)
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
 

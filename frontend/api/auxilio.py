@@ -280,3 +280,82 @@ def getARPInfo(p):
     # json_object = json.dumps(tabela, indent = 4) 
     # print(json_object)
     #return json_object
+
+
+
+
+
+# FUNÇÕES PARA O T3 RIP
+def handleWithRIP(filename):
+    rip = lista_pacotes(filename)
+    intervals = time(rip)
+    table = []
+
+    for index, value in enumerate(rip):
+        # print("\n")
+        # print(f'Intervalos de tempo entre atualizações RIP (em segundos): {intervals[index - 1]}s')
+        table.append({"src": value.getlayer(IP).src, "time": float(intervals[index - 1]), "table": []})
+        parse_rip_entries_in_packet(table[index], value)
+
+    return table
+
+def time(rip):
+    rip_packets = [r for r in rip if RIP in r]
+    
+    # Extrair horários dos pacotes RIP
+    timestamps = [pkt.time for pkt in rip_packets]
+    
+    # Caclular intervalos entre pacotes sucessivos 
+    intervals = [timestamps[i] - timestamps[i-1] for i in range(1, len(timestamps))]
+
+    # Converter para segundos
+    intervalsInSeconds = [interval for interval in intervals]
+
+    temp = []
+
+    #Exibir intervalos de tempo e o número de pacotes RIP
+    # print(f'Número de pacotes RIP: {len(rip_packets)}')
+    # print("Intervalos de tempo entre atualizações RIP (em segundos): ")
+    # for interval in intervalsInSeconds:
+    #   print(interval)
+    for interval in intervalsInSeconds:
+        temp.append(interval)
+    
+    return temp
+
+# ACHAR ONDE COLOR O rip.command == 2
+
+def parse_rip_entries_in_packet(dict, p):
+    src_ip = p.getlayer(IP).src
+    
+    rip_entry = p.getlayer(RIPEntry)
+    # thisdict.update({"color": "red"})
+    # print(f"IP SRC: {src_ip}")
+
+    # dict.update({"time": time})
+    while rip_entry:
+        # see https://scapy.readthedocs.io/en/latest/api/scapy.layers.rip.html
+        # for extracting RIP entry fields
+        ip_addr = rip_entry.addr
+        netmask = rip_entry.mask
+        next_hop = rip_entry.nextHop
+        metric = rip_entry.metric
+        dict["table"].append({
+            "IP": ip_addr,
+            "mask": netmask,
+            "next": next_hop,
+            "metric": metric,
+        })      
+        # dict[src_ip].append({
+        #     "time": time,
+        #     "IP": ip_addr,
+        #     "mask": netmask,
+        #     "next": next_hop,
+        #     "metric": metric,
+        # })
+        # print(f"IP:{ip_addr} {netmask} | next hop: {next_hop} | metric: {metric}")
+        
+        # move to next RIP entry
+        rip_entry = rip_entry.getlayer(RIPEntry, 2)
+
+handleWithRIP("../../RIPv2_subnet_down.pcap")
