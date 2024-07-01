@@ -15,18 +15,22 @@ app = FastAPI()
 app.mount("/recursos", StaticFiles(directory="../",html = True), name="static")
 app.mount("/graficos", StaticFiles(directory="graphs",html = True), name="graphs")
 
-async def proccessIP(filename):
+async def processIP(filename):
     p = aux.lista_pacotes(filename)
     publicIps = await aux.communication_graph(p)
     aux.grafico_mapa(publicIps)
     return {}
 
-async def proccessARP(filename):
+async def processARP(filename):
     p = aux.lista_pacotes(filename)
     return aux.getARPInfo(p)
 
 async def processRIP(filename):
     return aux.handleWithRIP(filename);
+
+async def processUDP(filename):
+    p = aux.lista_pacotes(filename)
+    return {}
 
 @app.post("/uploadfile/{protocol}")
 async def upload_file(protocol: str, file: UploadFile = File(...)):
@@ -34,11 +38,13 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
         with open(file.filename, "wb") as buffer:
             buffer.write(await file.read())
             if protocol == "IP":
-                return await proccessIP(file.filename)
+                return await processIP(file.filename)
             if protocol == "ARP":
-                return await proccessARP(file.filename)
+                return await processARP(file.filename)
             if protocol == "RIP":
                 return await processRIP(file.filename)
+            if protocol == "UDP":
+                return await processUDP(file.filename)
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
 

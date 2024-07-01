@@ -282,9 +282,6 @@ def getARPInfo(p):
     #return json_object
 
 
-
-
-
 # FUNÇÕES PARA O T3 RIP
 def handleWithRIP(filename):
     rip = lista_pacotes(filename)
@@ -358,4 +355,27 @@ def parse_rip_entries_in_packet(dict, p):
         # move to next RIP entry
         rip_entry = rip_entry.getlayer(RIPEntry, 2)
 
-handleWithRIP("../../RIPv2_subnet_down.pcap")
+
+#FUNCÕES PARA O T4 UDP
+def handleUDP(p):
+    udp_packets = [u for u in p if UDP in u]
+    for packet in udp_packets:
+        service_sport = get_service_by_port(packet.sport, "udp")
+        service_dport = get_service_by_port(packet.dport, "udp")
+        packet.conversations()
+        # if service:
+        #print(f"Source port: {packet.sport} --- Service: {service_sport} ==> Destination port: {packet.sport} --- Service: {service_dport}")
+            
+        # print(packet.payload)
+    # print(len(udp_packets))
+    # for i in range(len(udp_packets)):
+        # print(udp_packets[i])
+
+def get_service_by_port(port, protocol):
+    try:
+        service = socket.getservbyport(port, protocol)
+        return service
+    except:
+        return None
+
+handleUDP(lista_pacotes("udp.pcap"))
