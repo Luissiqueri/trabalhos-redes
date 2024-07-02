@@ -15,6 +15,7 @@ from geopandas import GeoDataFrame
 import pandas as pds
 import ipinfo
 import json
+from collections import OrderedDict
 
 api_key_ipinfo = "c059178683af37"
 
@@ -356,7 +357,7 @@ def parse_rip_entries_in_packet(dict, p):
         rip_entry = rip_entry.getlayer(RIPEntry, 2)
 
 
-#FUNCÕES PARA O T4 UDP
+#FUNCÕES PARA O T4 PROTOCOLO UDP
 def handleUDP(p):
     udp_packets = [u for u in p if UDP in u]
     for packet in udp_packets:
@@ -378,4 +379,75 @@ def get_service_by_port(port, protocol):
     except:
         return None
 
-handleUDP(lista_pacotes("udp.pcap"))
+#handleUDP(lista_pacotes("udp.pcap"))
+
+#FUNÇÕES PARA T5 PROTOCOLO TCP
+def handleTCP(p):
+    tcp_packets = [t for t in p if TCP in t]
+    
+    data = {} 
+
+    for tcp in tcp_packets:
+        src_ip = tcp[IP].src
+        dst_ip = tcp[IP].dst
+        src_port = tcp[TCP].sport
+        dst_port = tcp[TCP].dport
+
+        ts = tcp.seq
+        if 'A' in tcp[TCP].flags:
+            tsack = tcp[TCP].ack
+            rtt = tsack - ts
+        else:
+            tsack = None
+            rtt = None
+
+        if 'R' in tcp[TCP].flags:
+            retransmission = 1
+        else:
+            retransmission = 0
+
+        #w_size = tcp[TCP].window_size
+            
+        id_occurrencies = (src_ip, dst_ip)
+
+        if id_occurrencies not in data:
+            data[id_occurrencies] = {
+                'src_ip': src_ip,
+                'dst_ip':dst_ip,
+                'total_bytes':0,
+                'src_port':[],
+                'dst_port':[],
+                'packets': 0,
+                'bytes':[],
+                'n_sequence':[],
+                'w_size': [],
+                'retransmission':[],
+                'RTT':[]
+            }
+            
+            data[id_occurrencies]['src_port'].append(src_port)
+            data[id_occurrencies]['dst_port'].append(dst_port)
+            data[id_occurrencies]['total_bytes'] += len(tcp)
+            data[id_occurrencies]['packets'] += 1
+            data[id_occurrencies]['bytes'].append(len(tcp))
+            data[id_occurrencies]['n_sequence'].append(ts)
+            #data[id_occurrencies]['w_size'].append(w_size)
+            data[id_occurrencies]['retransmission'].append(retransmission)
+            data[id_occurrencies]['RTT'].append(rtt)
+    
+    for connection, info in data.items():
+        src_ip, dst_ip = connection
+        print(f"Connection: {src_ip} -> {dst_ip}")
+        print(f"  Source IP: {info['src_ip']}")
+        print(f"  Destination IP: {info['dst_ip']}")
+        print(f"  Source Ports: {info['src_port']}")
+        print(f"  Destination Ports: {info['dst_port']}")
+        print(f"  Total Packets: {info['packets']}")
+        #total_bytes = sum(info['bytes'])
+        print(f"  Total Bytes Transferred: {info['total_bytes']} bytes")
+        print(f"  Sequence Number: {info['n_sequence']}")
+        print(f"  Retransmission: {info['retransmission']}")
+        print(f"  RTT: {info['RTT']} microssegundos")
+
+
+handleTCP(lista_pacotes("tcp.pcap"))
