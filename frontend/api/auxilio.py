@@ -1,4 +1,5 @@
 from scapy.all import *
+from scapy.layers.http import *
 import matplotlib.pyplot as plt
 from collections import Counter
 import plotly
@@ -16,6 +17,7 @@ import pandas as pds
 import ipinfo
 import json
 from collections import OrderedDict
+import os
 
 api_key_ipinfo = "c059178683af37"
 
@@ -449,5 +451,72 @@ def handleTCP(p):
         print(f"  Retransmission: {info['retransmission']}")
         print(f"  RTT: {info['RTT']} microssegundos")
 
+#handleTCP(lista_pacotes("tcp.pcap"))
 
-handleTCP(lista_pacotes("tcp.pcap"))
+def handleHTTP(p):
+    http_packets = [h for h in p if HTTPRequest in h or HTTPResponse in h]
+
+    for http in http_packets:
+        if HTTPRequest in http:
+            print("=>REQUEST")
+            method = http[HTTPRequest].Method.decode()  # Decodificar para string
+            path = http[HTTPRequest].Path.decode()      # Decodificar para string
+            host = http[HTTPRequest].Host.decode() if b'Host' in http[HTTPRequest].fields else ''  # Decodificar para string se disponível
+            # Construir a URL completa
+            url = f"http:/{host}{path}"
+            
+            headers = http[HTTPRequest].fields          # Obter todos os campos do HTTPRequest
+            print(f"Método: {method}")
+            print(f"URL: {url}")
+            print(f"Cabeçalhos: {headers}")
+    
+        if HTTPResponse in http:
+            print("=>RESPONSE")
+            status_code = http[HTTPResponse].Status_Code.decode()  # Decodificar para string
+            reason_phrase = http[HTTPResponse].Reason_Phrase.decode()  # Decodificar para string
+            headers = http[HTTPResponse].fields                     # Obter todos os campos do HTTPResponse
+            print(f"Código de Status: {status_code}")
+            print(f"Motivo: {reason_phrase}")
+            print(f"Cabeçalhos: {headers}")
+            
+        print()
+
+def save_content(content, filename):
+    with open(filename, "wb") as f:
+        f.write(content)
+
+def HTTPcontent(p):
+    
+    http_packets = [h for h in p if HTTPRequest in h or HTTPResponse in h]
+    output_dir = "output/"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    for i, http in enumerate(http_packets):
+        
+        if HTTPResponse in http:    
+            response = http[HTTPResponse]
+
+            if 'Content_Type' in response.fields:
+                content_type = response.fields['Content_Type'].decode()
+
+                #print(content_type)
+
+            #Verificar se o conteúdo é HTML
+                if 'text/html' in content_type:
+                    # print("aqui")
+                    body = response.payload.load
+                    filename = f"{output_dir}page_{i}.html"
+                    save_content(body, filename)
+                    print(f"HTML salvo em: {filename}")
+            # Verificar se o conteúdo é uma imagem
+                elif 'image' in content_type:
+                    body = response.payload.load
+                    ext = content_type.split('/')[1]  # Extensão da imagem (ex: png, jpeg)
+                    filename = f"{output_dir}image_{i}.{ext}"
+                    save_content(body, filename)
+                    print(f"Imagem salva em: {filename}")
+            # Adicionar outras verificações para diferentes tipos de conteúdo se necessário"""
+
+#handleHTTP(lista_pacotes("http_witp_jpegs.pcap"))
+
+HTTPcontent(lista_pacotes("http_witp_jpegs.pcap"))
