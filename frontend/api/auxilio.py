@@ -381,7 +381,6 @@ def get_service_by_port(port, protocol):
     except:
         return None
 
-#handleUDP(lista_pacotes("udp.pcap"))
 
 #FUNÇÕES PARA T5 PROTOCOLO TCP
 def handleTCP(p):
@@ -451,7 +450,6 @@ def handleTCP(p):
         print(f"  Retransmission: {info['retransmission']}")
         print(f"  RTT: {info['RTT']} microssegundos")
 
-#handleTCP(lista_pacotes("tcp.pcap"))
 
 def handleHTTP(p):
     http_packets = [h for h in p if HTTPRequest in h or HTTPResponse in h]
@@ -499,8 +497,6 @@ def HTTPcontent(p):
             if 'Content_Type' in response.fields:
                 content_type = response.fields['Content_Type'].decode()
 
-                #print(content_type)
-
             #Verificar se o conteúdo é HTML
                 if 'text/html' in content_type:
                     # print("aqui")
@@ -515,8 +511,83 @@ def HTTPcontent(p):
                     filename = f"{output_dir}image_{i}.{ext}"
                     save_content(body, filename)
                     print(f"Imagem salva em: {filename}")
-            # Adicionar outras verificações para diferentes tipos de conteúdo se necessário"""
+            
 
-#handleHTTP(lista_pacotes("http_witp_jpegs.pcap"))
+def handleDNS(p):
 
-HTTPcontent(lista_pacotes("http_witp_jpegs.pcap"))
+    c = 0
+    occurrencies = 0
+    ips = []
+    data = {}
+    domains_data = {}
+    response_pairs = defaultdict(list)
+
+    DNSpackets = [d for d in p if DNS in d]
+
+    for dns in DNSpackets:
+        if dns.qr == 0:  # qr == 0 consulta DNS
+           response_pairs[dns.id].append(dns)
+           
+        elif dns.qr == 1:  # qr == 1 resposta DNS
+            occurrencies += 1
+            ips.append(dns[IP].dst)
+            ips.append(dns[IP].src)
+
+            data[occurrencies] = {
+            'src_ip': dns[IP].dst,
+            'dst_ip':dns[IP].src,
+            'response_time': 0,
+            'domains': [],
+            'types': [],
+            'domains_ips':[]
+            }
+            
+            response_pairs[dns.id].append(dns)
+
+            for i in range(dns.ancount):
+                response = dns.an[i]
+                data[occurrencies]["domains"].append(response.rrname.decode('utf-8'))
+                data[occurrencies]["types"].append(response.type)
+                data[occurrencies]["domains_ips"].append(response.rdata)
+
+            occurrencies += 1
+
+    #print(list(set(ips)))
+    DDoS(data)
+
+def DDoS(data):
+    """
+    sleep_interval = 15
+
+    # Set threshold for number of connections
+    connection_threshold = 1000
+
+    # Initialize list to store previous number of connections
+    previous_connections = []
+
+    total_packets = len(data)
+    unique_ip_count = len(set(entry['src_ip'] for entry in data.values()))
+    for entry in data.values():
+        #print(entry['dst_ip'])
+        #print(entry['src_ip'])
+        print(entry['domains_ips'])
+    print(list(set(entry['src_ip'] for entry in data.values())))
+    print(unique_ip_count)
+
+    
+    if total_packets > connection_threshold:
+        print(f"Possible DDoS Attack detected! High volume of DNS packets: {total_packets}")
+    
+    if unique_ip_count > 50:  
+        print(f"Possible DDoS Attack detected! High number of unique source IPs: {unique_ip_count}")
+
+    print(f"Total DNS packets: {total_packets}, Unique source IPs: {unique_ip_count}")
+
+    # Identificação e bloqueio do atacante
+   if block_attacker:
+        potential_attackers = [entry['src_ip'] for entry in data.values()]
+        for attacker in potential_attackers:
+            os.system(f'netsh advfirewall firewall add rule name="Block IP" dir=in action=block remoteip={attacker}')"""
+    
+
+handleDNS(lista_pacotes("dns.pcap"))
