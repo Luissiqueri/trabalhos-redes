@@ -5,45 +5,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./style.css">
+    <script defer src="https://kit.fontawesome.com/8aff2942ec.js" crossorigin="anonymous"></script>
     <script defer src="./script.js"></script>
     <title>Trabalho 1 - Redes</title>
 </head>
 
 <body>
-    <div class="main">
-        <div class="all--container">
-            <div class="file--container">
+    <div class="main card">
+        <div class="sidebar">
+            <p>v1.1.8</p>
+            <h2>Arquivos padrões:</h2>
+            <ul class="ul--default--file">
+                <li class="li--default--file">
+                    <button class="li--button--file" value="IP"
+                        onclick="selectFile(event, event.target.value, `./api/trabalho1.pcapng`)">Arquivo
+                        IP
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="ARP"
+                        onclick="selectFile(event, event.target.value, `./api/arp.pcap`)">
+                        Arquivo ARP
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="RIP" onclick="selectFile(event.target.value, ``)">
+                        Arquivo RIP
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="UDP" onclick="selectFile(event, event.target.value, ``)">
+                        Arquivo UDP
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="TCP" onclick="selectFile(event.target.value, ``)">
+                        Arquivo TCP
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="HTTP" onclick="selectFile(event.target.value, ``)">
+                        Arquivo HTTP
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="DNS" onclick="selectFile(event.target.value, ``)">
+                        Arquivo DNS
+                    </button>
+                </li>
+                <li class="li--default--file">
+                    <button class="li--button--file" value="SNMP" onclick="selectFile(event.target.value, ``)">
+                        Arquivo SNMP
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="container ">
+            <form class="file--container">
                 <div class="input--file--container">
                     <label class="input--file--label" for="input--file">Selecione seu arquivo</label>
-                    <input id="input--file" type='file'>
-                    <img class="icon--close" src="./assets/remover.png" alt="" onclick="removeFile()">
+                    <input id="input--file" type='file' />
+                    <i class="icon--close fa fa-times fa-lg hidden" aria-hidden="true" onclick="removeFile(event)"></i>
                 </div>
                 <div class="protocol--container">
                     <div>Protocolo</div>
                     <select id="protocol--select">
                         <option>IP</option>
                         <option>ARP</option>
+                        <option>RIP</option>
+                        <option>UDP</option>
+                        <option>TCP</option>
+                        <option>HTTP</option>
+                        <option>DNS</option>
+                        <option>SNMP</option>
                     </select>
                 </div>
-                <button class="send--file--button" onclick="clickButton()" disabled>Enviar</button>
+                <button type="button" class="send--file--button" onclick="submitForm(event)">Enviar</button>
                 <div class="icon--load--container">
-                    <img class="icon--load hidden" src="./assets/atualizar.png" alt="">
+                    <i class="icon--load hidden fa-solid fa-circle-notch fa-xl"></i>
                 </div>
-            </div>
-            <div class="images--api hidden">
-                <div class="image img-1">
-                </div>
-                <div class="image img-2">
-                </div>
-            </div>
-            <div class="Table hidden">
-                <table class="table--container">
-                    <thead class="table--header">
-                    </thead>
-                    <tbody class="table--body">
-                    </tbody>
-                </table>
-            </div>
+            </form>
+
+            <div class="main--api"></div>
         </div>
     </div>
 </body>
