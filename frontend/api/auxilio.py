@@ -147,7 +147,10 @@ def grafico_mapa(publicIpsOrderedByTTL):
     df = pd.DataFrame(data)
     geometry = [Point(xy) for xy in zip(df['Longitude'], df['Latitude'])]
     gdf = GeoDataFrame(df, geometry=geometry)
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    
+    shapedFilePath = "./world/ne_110m_admin_0_countries.shp"
+    world = gpd.read_file(shapedFilePath)
+    
     ax = world.plot(figsize=(10, 6))
     gdf.plot(ax=ax, marker='o', color='red', markersize=df['Repeticoes']*5);
     ax.get_figure().savefig('graphs/locationsGraph.svg')
