@@ -168,7 +168,133 @@ function showARPData(json) {
 }
 
 function showRIPData(json) {
-  console.log(json);
+  const api = document.querySelector(".main--api");
+  const pacotes = json;
+  let routers = {};
+  
+  const NEVER = -1;
+
+  //pega o estado final enviado de cada roteador:
+  for (let i = pacotes.length - 1; i >= 0; i--) {
+    const pacote = pacotes[i];
+    if (routers[pacote.src] == undefined) {
+      routers[pacote.src] = {}
+      routers[pacote.src].table = pacote.table;
+      routers[pacote.src].lastSend = i;
+      routers[pacote.src].lastReceived = NEVER;
+    }
+  }
+
+  for (let i = pacotes.length - 1; i >= 0; i--) {
+    const pacote = pacotes[i];
+    let router;
+    if (routers[pacote.dst] == undefined) {
+      router = {}
+      router.lastReceived = NEVER;
+      router.lastSend = NEVER;
+    } else {
+      router = routers[pacote.dst];
+    }
+    if (i > router.lastReceived) {
+      router.lastReceived = i;
+      routers[pacote.dst] = router;
+    }
+  }
+
+  //encontra roteadores que receberam tabelas depois de terem mandado a sua:
+  let pendingRouters = [];
+  for (let routerIP in routers) {
+    let router = routers[routerIP];
+    if (router.lastReceived > router.lastSend) {
+      router.ip = routerIP;
+      pendingRouters.push(router);
+    }
+  }
+
+  console.log(pendingRouters);
+
+  //calcula a tabela resultante dos roteadores pendentes
+  for (let router of pendingRouters) {
+    if (router.table == undefined) {
+      router.table = [];
+    }
+    for (let i = router.lastSend + 1; i < pacotes.length; i++) {
+      const pacote = pacotes[i];
+      if (pacote.dst == router.ip) {
+        let table = pacote.table;
+        for (let entry of table) {
+          let entryCopiada = JSON.parse(JSON.stringify(entry));
+          entryCopiada.next = pacote.src;
+          entryCopiada.metric += 1;
+          let entryIndex = -1;
+          for (let currentEntryIndex = 0; currentEntryIndex < router.table.length; currentEntryIndex++) {
+            if (router.table[currentEntryIndex].IP == entryCopiada.IP) {
+              entryIndex = currentEntryIndex;
+              break;
+            }
+          }
+          if (entryIndex == -1) {
+            router.table.push(entryCopiada);
+          } else {
+            let currentEntry = router.table[entryIndex];
+            if (currentEntry.next == entryCopiada.next) {
+              router.table[entryIndex] = entryCopiada;
+            } else if (currentEntry.metric > entryCopiada.metric) {
+              router.table[entryIndex] = entryCopiada;
+            }
+          }
+        }
+      }
+    }
+  }
+  for (let calculatedRouter of pendingRouters) {
+    routers[calculatedRouter.ip] = calculatedRouter;
+  }
+  
+  api.innerHTML = "";
+  api.style.paddingTop = "200px";
+  for (let routerIP in routers) {
+    let router = routers[routerIP];
+    let routerDiv = document.createElement("DIV");
+    let routerIPDiv = document.createElement("DIV");
+    routerIPDiv.innerText = "Tabela RIP resultante do roteador " + routerIP;
+    routerDiv.appendChild(routerIPDiv);
+    routerDiv.style.marginTop = "20px";
+    let ripTable = document.createElement("TABLE");
+    routerDiv.appendChild(ripTable);
+    let ripHeader = document.createElement("TR");
+    let ipHeader = document.createElement("TH");
+    ipHeader.innerText = "IP";
+    ripHeader.appendChild(ipHeader);
+    let maskHeader = document.createElement("TH");
+    maskHeader.innerText = "Mask";
+    ripHeader.appendChild(maskHeader);
+    let metricHeader = document.createElement("TH");
+    metricHeader.innerText = "Saltos";
+    ripHeader.appendChild(metricHeader);
+    let nextHeader = document.createElement("TH");
+    nextHeader.innerText = "Next";
+    ripHeader.appendChild(nextHeader);
+    ripTable.appendChild(ripHeader);
+    for (let entry of router.table) {
+      let ripEntry = document.createElement("TR");
+      let ip = document.createElement("TD");
+      ip.innerText = entry.IP;
+      ripEntry.appendChild(ip);
+      let mask = document.createElement("TD");
+      mask.innerText = entry.mask;
+      ripEntry.appendChild(mask);
+      let metric = document.createElement("TD");
+      metric.innerText = entry.metric;
+      ripEntry.appendChild(metric);
+      let next = document.createElement("TD");
+      next.innerText = entry.next;
+      ripEntry.appendChild(next);
+      ripTable.appendChild(ripEntry);
+    }
+    routerDiv.appendChild(ripTable);
+    api.appendChild(routerDiv);
+  }
 }
 
 function showUDPData(json) {

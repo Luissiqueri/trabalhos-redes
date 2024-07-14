@@ -289,15 +289,14 @@ def getARPInfo(p):
 
 
 # FUNÇÕES PARA O T3 RIP
-def handleWithRIP(filename):
-    rip = lista_pacotes(filename)
-    intervals = time(rip)
+def handleRIP(p):
+    intervals = time(p)
     table = []
 
-    for index, value in enumerate(rip):
+    for index, value in enumerate(p):
         # print("\n")
         # print(f'Intervalos de tempo entre atualizações RIP (em segundos): {intervals[index - 1]}s')
-        table.append({"src": value.getlayer(IP).src, "time": float(intervals[index - 1]), "table": []})
+        table.append({"src": value.getlayer(IP).src, "dst": value.getlayer(IP).dst, "time": float(intervals[index - 1]), "table": []})
         parse_rip_entries_in_packet(table[index], value)
 
     return table
@@ -591,6 +590,3 @@ def DDoS(data):
         potential_attackers = [entry['src_ip'] for entry in data.values()]
         for attacker in potential_attackers:
             os.system(f'netsh advfirewall firewall add rule name="Block IP" dir=in action=block remoteip={attacker}')"""
-    
-
-handleDNS(lista_pacotes("dns.pcap"))

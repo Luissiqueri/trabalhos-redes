@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 # from typing import Union
 import asyncio
+import traceback
 # from pydantic import BaseModel
 # import magic
 # import json
@@ -26,7 +27,9 @@ async def processARP(filename):
     return aux.getARPInfo(p)
 
 async def processRIP(filename):
-    return aux.handleWithRIP(filename);
+    #gambiarra temporaria
+    p = aux.lista_pacotes("rip.pcap")
+    return aux.handleRIP(p)
 
 async def processUDP(filename):
     p = aux.lista_pacotes(filename)
@@ -46,6 +49,7 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
             if protocol == "UDP":
                 return await processUDP(file.filename)
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code = 500, detail = str(e))
 
 
