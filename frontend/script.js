@@ -306,7 +306,26 @@ function showTCPData(json) {
 }
 
 function showHTTPData(json) {
-
+  const contents = json;
+  const api = document.querySelector(".main--api");
+  api.innerHTML = `<div style="font-size: 18px; font-weight: bold;">Conteúdos acessados por cada host</div>`;
+  api.style.paddingTop = "100px";
+  for (let ip in contents) {
+    let ipCOntentsDiv = document.createElement("DIV");
+    ipCOntentsDiv.style.fontSize = "15px";
+    ipCOntentsDiv.style.marginTop = "15px";
+    ipCOntentsDiv.innerHTML = `<span>Conteúdos acessados pelo host ${ip}:</span>`;
+    for (let content of contents[ip]) {
+      let contentLinkDiv = document.createElement("DIV");
+      contentLinkDiv.style.backgroundColor = "#fa7070";
+      contentLinkDiv.style.padding = "5px";
+      contentLinkDiv.style.borderRadius = "0.25rem";
+      contentLinkDiv.style.margin = "10px 0px";
+      contentLinkDiv.innerHTML = `<a style="color: white" target="_blank" href="../${content.path}">${content.type}</a>`;
+      ipCOntentsDiv.appendChild(contentLinkDiv);
+    }
+    api.appendChild(ipCOntentsDiv);
+  }
 }
 
 function showDNSData(json) {

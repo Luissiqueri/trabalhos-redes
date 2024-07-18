@@ -452,35 +452,6 @@ def handleTCP(p):
         print(f"  Retransmission: {info['retransmission']}")
         print(f"  RTT: {info['RTT']} microssegundos")
 
-
-def handleHTTP(p):
-    http_packets = [h for h in p if HTTPRequest in h or HTTPResponse in h]
-
-    for http in http_packets:
-        if HTTPRequest in http:
-            print("=>REQUEST")
-            method = http[HTTPRequest].Method.decode()  # Decodificar para string
-            path = http[HTTPRequest].Path.decode()      # Decodificar para string
-            host = http[HTTPRequest].Host.decode() if b'Host' in http[HTTPRequest].fields else ''  # Decodificar para string se disponível
-            # Construir a URL completa
-            url = f"http:/{host}{path}"
-            
-            headers = http[HTTPRequest].fields          # Obter todos os campos do HTTPRequest
-            print(f"Método: {method}")
-            print(f"URL: {url}")
-            print(f"Cabeçalhos: {headers}")
-    
-        if HTTPResponse in http:
-            print("=>RESPONSE")
-            status_code = http[HTTPResponse].Status_Code.decode()  # Decodificar para string
-            reason_phrase = http[HTTPResponse].Reason_Phrase.decode()  # Decodificar para string
-            headers = http[HTTPResponse].fields                     # Obter todos os campos do HTTPResponse
-            print(f"Código de Status: {status_code}")
-            print(f"Motivo: {reason_phrase}")
-            print(f"Cabeçalhos: {headers}")
-            
-        print()
-
 def save_content(content, filename):
     with open(filename, "wb") as f:
         f.write(content)
@@ -489,17 +460,19 @@ def HTTPcontent(p):
     
     http_packets = [h for h in p if HTTPRequest in h or HTTPResponse in h]
     output_dir = "output/"
+
+    contentsPerIp = {}
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     for i, http in enumerate(http_packets):
         
         if HTTPResponse in http:    
             response = http[HTTPResponse]
-
             if 'Content_Type' in response.fields:
                 content_type = response.fields['Content_Type'].decode()
-
             #Verificar se o conteúdo é HTML
+                filename = ""
                 if 'text/html' in content_type:
                     # print("aqui")
                     body = response.payload.load
@@ -513,7 +486,17 @@ def HTTPcontent(p):
                     filename = f"{output_dir}image_{i}.{ext}"
                     save_content(body, filename)
                     print(f"Imagem salva em: {filename}")
-            
+                ipDst = http.getlayer(IP).dst
+                if (ipDst not in contentsPerIp):
+                    contentsPerIp[ipDst] = []
+                ipContents = contentsPerIp[ipDst]
+                content = {
+                    'type': content_type,
+                    'path': filename
+                }
+                ipContents.append(content)
+    return contentsPerIp
+                
 
 def handleDNS(p):
 

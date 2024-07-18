@@ -14,6 +14,7 @@ print("Para acessar a aplicacao: http://localhost:8000/recursos/index.html")
 app = FastAPI()
 
 app.mount("/recursos", StaticFiles(directory="../",html = True), name="static")
+app.mount("/output", StaticFiles(directory="output",html = True), name="static")
 app.mount("/graficos", StaticFiles(directory="graphs",html = True), name="graphs")
 
 async def processIP(filename):
@@ -35,6 +36,11 @@ async def processUDP(filename):
     p = aux.lista_pacotes(filename)
     return {}
 
+async def processHTTP(filename):
+    p = aux.lista_pacotes(filename)
+    return aux.HTTPcontent(p)
+
+
 @app.post("/uploadfile/{protocol}")
 async def upload_file(protocol: str, file: UploadFile = File(...)):
     try:
@@ -48,6 +54,8 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
                 return await processRIP(file.filename)
             if protocol == "UDP":
                 return await processUDP(file.filename)
+            if protocol == "HTTP":
+                return await processHTTP(file.filename)
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code = 500, detail = str(e))
