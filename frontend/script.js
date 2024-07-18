@@ -72,7 +72,7 @@ function showResults(jsonResposnse, protocol) {
     showDNSData(jsonResposnse);
   }
   else if (protocol === "SNMP") {
-    showNLBData(jsonResposnse);
+    showSNMPData(jsonResposnse);
   }
 }
 
@@ -332,8 +332,47 @@ function showDNSData(json) {
 
 }
 
-function showNLBData(json) {
-
+function showSNMPData(json) {
+  const agents = json.agents;
+  const managers = json.managers;
+  const api = document.querySelector(".main--api");
+  api.innerHTML = `<div style="font-size: 18px;">Agentes e gerenciadores encontrados na rede</div>`;
+  let agentsDiv = document.createElement("DIV");
+  agentsDiv.style.marginTop = "10px";
+  agentsDiv.style.fontSize = "15px";
+  agentsDiv.style.borderRadius = "0.25rem";
+  agentsDiv.style.border = "1px solid #b36767"
+  agentsDiv.innerHTML = `<div style="color: white; background-color: #ffb996; padding: 5px;">Hosts agentes</div>`;
+  api.appendChild(agentsDiv);
+  for (let agent in agents) {
+    let agentDiv = document.createElement("DIV");
+    agentDiv.style.padding = "5px";
+    agentDiv.innerHTML = `PDU's geradas pelo host <b>${agent}</b>`;
+    agentsDiv.appendChild(agentDiv);
+    for (let pdu in agents[agent]) {
+      let pduDiv = document.createElement("DIV");
+      pduDiv.innerHTML = `<b>${pdu.substring(4).charAt(0).toUpperCase()}${pdu.substring(5)}</b>: ${agents[agent][pdu]}`;
+      agentDiv.appendChild(pduDiv);
+    }
+  }
+  let managersDiv = document.createElement("DIV");
+  managersDiv.style.marginTop = "10px";
+  managersDiv.style.fontSize = "15px";
+  managersDiv.style.borderRadius = "0.25rem";
+  managersDiv.style.border = "1px solid #b36767"
+  managersDiv.innerHTML = `<div style="color: white; padding: 5px; background-color: #ffb996;">Hosts gerenciadores</div>`;
+  api.appendChild(managersDiv);
+  for (let manager in managers) {
+    let managerDiv = document.createElement("DIV");
+    managerDiv.style.padding = "5px";
+    managerDiv.innerHTML = `PDU's geradas pelo host <b>${manager}</b>`;
+    managersDiv.appendChild(managerDiv);
+    for (let pdu in managers[manager]) {
+      let pduDiv = document.createElement("DIV");
+      pduDiv.innerHTML = `<b>${pdu.substring(4).charAt(0).toUpperCase()}${pdu.substring(5)}</b>: ${managers[manager][pdu]}`;
+      managerDiv.appendChild(pduDiv);
+    }
+  }
 }
 
 

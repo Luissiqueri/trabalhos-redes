@@ -540,6 +540,41 @@ def handleDNS(p):
     #print(list(set(ips)))
     DDoS(data)
 
+def handleSNMP(p):
+    agentPdus = [SNMPinform, SNMPresponse, SNMPtrapv1, SNMPtrapv2]
+    snmpPacketes = [d for d in p if SNMP in d]
+    agents = {}
+    managers = {}
+    for snmp in snmpPacketes:
+        manager = True
+        for agentPdu in agentPdus:
+            if agentPdu in snmp:
+               manager = False
+               break
+        if not manager:
+            ip = snmp.getlayer(IP).src
+            pdu = f"{snmp[SNMP].PDU}"
+            if ip not in agents:
+                agents[ip] = {}
+            if pdu not in agents[ip]:
+                agents[ip][pdu] = 1
+            else: 
+                agents[ip][pdu] = agents[ip][pdu] + 1
+        else:
+            ip = snmp.getlayer(IP).src
+            pdu = f"{snmp[SNMP].PDU}"
+            if ip not in managers:
+                managers[ip] = {}
+            if pdu not in managers[ip]:
+                managers[ip][pdu] = 1
+            else: 
+                managers[ip][pdu] = managers[ip][pdu] + 1
+    return {
+        "agents": agents,
+        "managers": managers
+    }
+
+
 def DDoS(data):
     """
     sleep_interval = 15

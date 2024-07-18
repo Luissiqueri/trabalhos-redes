@@ -40,6 +40,9 @@ async def processHTTP(filename):
     p = aux.lista_pacotes(filename)
     return aux.HTTPcontent(p)
 
+async def processSNMP(filename):
+    p = aux.lista_pacotes(filename)
+    return aux.handleSNMP(p)
 
 @app.post("/uploadfile/{protocol}")
 async def upload_file(protocol: str, file: UploadFile = File(...)):
@@ -56,6 +59,8 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
                 return await processUDP(file.filename)
             if protocol == "HTTP":
                 return await processHTTP(file.filename)
+            if protocol == "SNMP":
+                return await processSNMP(file.filename)
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code = 500, detail = str(e))
