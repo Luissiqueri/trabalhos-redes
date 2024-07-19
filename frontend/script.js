@@ -7,6 +7,61 @@ document.getElementById("input--file").addEventListener("change", (event) => {
   };
 })
 
+const updateInfo = () => {
+  const content = document.querySelector('.content');
+  const itemsPerPage = 10;
+  let currentPage = 0;
+  const items = Array.from(content.getElementsByTagName('tr')).slice(0);
+
+  function showPage(page) {
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    items.forEach((item, index) => {
+      item.classList.toggle('hidden', index < startIndex || index >= endIndex);
+    });
+    updateActiveButtonStates();
+  }
+
+  function createPageButtons() {
+    const totalPages = Math.ceil(items.length / itemsPerPage);
+    const paginationContainer = document.createElement('div');
+    const paginationDiv = document.body.appendChild(paginationContainer);
+    paginationContainer.classList.add('pagination');
+
+    // Add page buttons
+    for (let i = 0; i < totalPages; i++) {
+      const pageButton = document.createElement('button');
+      pageButton.textContent = i + 1;
+      pageButton.addEventListener('click', () => {
+        currentPage = i;
+        showPage(currentPage);
+        updateActiveButtonStates();
+      });
+
+      content.appendChild(paginationContainer);
+      paginationDiv.appendChild(pageButton);
+    }
+  }
+
+  function updateActiveButtonStates() {
+    const pageButtons = document.querySelectorAll('.pagination button');
+    pageButtons.forEach((button, index) => {
+      if (index === currentPage) {
+        button.classList.add('active');
+      } else {
+        button.classList.remove('active');
+      }
+    });
+  }
+
+  createPageButtons(); // Call this function to create the page buttons initially
+  showPage(currentPage);
+}
+
+// document.addEventListener('DOMContentLoaded', function () {
+//   updateInfo();
+// });
+
 const removeFile = (event) => {
   event.preventDefault();
 
@@ -35,6 +90,9 @@ const clickButton = (event, protocol, filePath) => {
 const submitForm = (event) => {
   event.preventDefault();
 
+  const load = document.getElementsByClassName("icon--load")[0];
+  load.classList.remove("hidden");
+
   const input = document.getElementById("input--file");
   const type = document.getElementById("protocol--select");
   const protocol = type.value;
@@ -44,13 +102,16 @@ const submitForm = (event) => {
 }
 
 function showResults(jsonResposnse, protocol) {
+  const load = document.getElementsByClassName("icon--load")[0];
+  load.classList.add("hidden");
+
   const api = document.querySelector(".main--api");
   while (api.hasChildNodes()) {
     api.removeChild(api.firstChild);
   }
-  
+
   console.log(protocol);
-  
+
   if (protocol === "IP") {
     showIPData();
   } else if (protocol === "ARP") {
@@ -128,27 +189,29 @@ function showIPData() {
 
 function showARPData(json) {
   const api = document.querySelector(".main--api");
+  api.style.paddingTop = "100px";
 
-  const table = document.createElement("div");
-  table.classList.add("Table");
+  const text = document.createElement("h3");
+  text.innerHTML = "Tabela de endereços mac's e sua empresas fabricantes";
 
-  api.append(table);
+  api.appendChild(text);
+
+  const article = document.createElement("article");
+  article.classList.add("content");
+
+  api.appendChild(article);
 
   const tableContainer = document.createElement("table");
-  tableContainer.classList.add("table--container");
 
-  table.append(tableContainer);
+  article.appendChild(tableContainer);
 
   const tableHeader = document.createElement("thead");
-  tableHeader.classList.add("table--header");
 
-  tableContainer.append(tableHeader);
+  tableContainer.appendChild(tableHeader);
 
   const tableBody = document.createElement("tbody");
-  tableBody.classList.add("table--body");
 
-  tableContainer.append(tableBody);
-
+  tableContainer.appendChild(tableBody);
 
   for (let value in json) {
     const thElement = document.createElement("th");
@@ -165,13 +228,16 @@ function showARPData(json) {
       tableBody.appendChild(trElement);
     }
   }
+
+  updateInfo();
 }
 
 function showRIPData(json) {
   const api = document.querySelector(".main--api");
+
   const pacotes = json;
   let routers = {};
-  
+
   const NEVER = -1;
 
   //pega o estado final enviado de cada roteador:
@@ -250,9 +316,8 @@ function showRIPData(json) {
   for (let calculatedRouter of pendingRouters) {
     routers[calculatedRouter.ip] = calculatedRouter;
   }
-  
+
   api.innerHTML = "";
-  api.style.paddingTop = "200px";
   for (let routerIP in routers) {
     let router = routers[routerIP];
     let routerDiv = document.createElement("DIV");
@@ -298,11 +363,117 @@ function showRIPData(json) {
 }
 
 function showUDPData(json) {
+  const api = document.querySelector(".main--api");
+  api.style.paddingTop = "100px";
 
+  const text = document.createElement("h3");
+  text.innerHTML = "Tabela UDP: ";
+
+  api.appendChild(text);
+
+  const article = document.createElement("article");
+  article.classList.add("content");
+
+  api.appendChild(article);
+
+  const tableContainer = document.createElement("table");
+
+  article.appendChild(tableContainer);
+
+  const tableHeader = document.createElement("thead");
+
+  tableContainer.appendChild(tableHeader);
+
+  const tableBody = document.createElement("tbody");
+
+  tableContainer.appendChild(tableBody);
+
+  for (let value in json[0]) {
+    const thElement = document.createElement("th");
+    tableHeader.appendChild(thElement);
+    thElement.innerHTML = value;
+  }
+
+  for (let i in json) {
+    const trElement = document.createElement("tr");
+    for (let value in json[i]) {
+      if (value === "service_src" || value === "service_dst") {
+        const temp = []
+        json[i][value].map((v) => {
+          if (v) temp.push(v)
+        });
+        const tdElement = document.createElement("td");
+        tdElement.innerHTML = temp.length > 0 ? temp : "**Não existem serviços conhecidos";
+        trElement.appendChild(tdElement);
+        tableBody.appendChild(trElement);
+      } else {
+        const tdElement = document.createElement("td");
+        tdElement.innerHTML = json[i][value];
+        trElement.appendChild(tdElement);
+        tableBody.appendChild(trElement);
+      }
+    }
+  }
+
+
+  const obs1 = document.createElement("p");
+  obs1.innerHTML = "*As colunas 'src_port' e 'dst_port' estão apresentando apenas as portas únicas, não levando em consideração todos os pacotes trocados entre os ip's";
+  api.appendChild(obs1);
+
+  const obs = document.createElement("p");
+  obs.innerHTML = "**As colunas 'services_src' e 'services_dst' apresenta <b>TODOS</b> os serviços conhecidos. Sem relação direta com a posição das colunas 'src_port' e 'dst_port'";
+  api.appendChild(obs);
+
+  updateInfo();
 }
 
 function showTCPData(json) {
+  const api = document.querySelector(".main--api");
+  api.style.paddingTop = "100px";
 
+  const text = document.createElement("h3");
+  text.innerHTML = "Tabela de Pacotes retransmitidos pela rede: ";
+
+  api.appendChild(text);
+
+  const article = document.createElement("article");
+  article.classList.add("content");
+
+  api.appendChild(article);
+
+  const tableContainer = document.createElement("table");
+
+  article.appendChild(tableContainer);
+
+  const tableHeader = document.createElement("thead");
+
+  tableContainer.appendChild(tableHeader);
+
+  const tableBody = document.createElement("tbody");
+
+  tableContainer.appendChild(tableBody);
+
+  for (let value in json[0]) {
+    if (value != "w_size" && value != "RTT") {
+      const thElement = document.createElement("th");
+      tableHeader.appendChild(thElement);
+      thElement.innerHTML = value;
+    }
+  }
+
+  for (let i in json) {
+    const trElement = document.createElement("tr");
+    for (let value in json[i]) {
+      if (value != "w_size" && value != "RTT") {
+        const tdElement = document.createElement("td");
+        tdElement.innerHTML = json[i][value];
+        trElement.appendChild(tdElement);
+        tableBody.appendChild(trElement);
+      }
+    }
+  }
+
+  updateInfo();
 }
 
 function showHTTPData(json) {
@@ -329,7 +500,53 @@ function showHTTPData(json) {
 }
 
 function showDNSData(json) {
+  const api = document.querySelector(".main--api");
+  api.style.paddingTop = "100px";
 
+  const text = document.createElement("h3");
+  text.innerHTML = "Tabela de Ip's e seus domínios: ";
+
+  api.appendChild(text);
+
+  const article = document.createElement("article");
+  article.classList.add("content");
+
+  api.appendChild(article);
+
+  const tableContainer = document.createElement("table");
+
+  article.appendChild(tableContainer);
+
+  const tableHeader = document.createElement("thead");
+
+  tableContainer.appendChild(tableHeader);
+
+  const tableBody = document.createElement("tbody");
+
+  tableContainer.appendChild(tableBody);
+
+
+  for (let value in json[0]) {
+    if (value !== "count") {
+      const thElement = document.createElement("th");
+      tableHeader.appendChild(thElement);
+      thElement.innerHTML = value;
+    }
+  }
+
+  for (let i in json) {
+    const trElement = document.createElement("tr");
+    for (let value in json[i]) {
+      if (value !== "count") {
+        const tdElement = document.createElement("td");
+        tdElement.innerHTML = json[i][value];
+        trElement.appendChild(tdElement);
+        tableBody.appendChild(trElement);
+      }
+    }
+  }
+
+  updateInfo();
 }
 
 function showSNMPData(json) {
@@ -378,6 +595,9 @@ function showSNMPData(json) {
 
 const selectFile = (event, protocol, filePath) => {
   event.preventDefault();
+
+  const load = document.getElementsByClassName("icon--load")[0];
+  load.classList.remove("hidden");
 
   fetchFile(filePath).then(fileBlob => {
     const formData = new FormData();

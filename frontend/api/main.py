@@ -34,11 +34,19 @@ async def processRIP(filename):
 
 async def processUDP(filename):
     p = aux.lista_pacotes(filename)
-    return {}
+    return aux.handleUDP(p)
+
+async def processaTCP(filename):
+    p = aux.lista_pacotes(filename)
+    return aux.handleTCP(p)
 
 async def processHTTP(filename):
     p = aux.lista_pacotes(filename)
     return aux.HTTPcontent(p)
+
+async def processaDNS(filename):
+    p = aux.lista_pacotes(filename)
+    return aux.handleDNS(p)
 
 async def processSNMP(filename):
     p = aux.lista_pacotes(filename)
@@ -57,8 +65,12 @@ async def upload_file(protocol: str, file: UploadFile = File(...)):
                 return await processRIP(file.filename)
             if protocol == "UDP":
                 return await processUDP(file.filename)
+            if protocol == "TCP":
+                return await processaTCP(file.filename)
             if protocol == "HTTP":
                 return await processHTTP(file.filename)
+            if protocol == "DNS":
+                return await processaDNS(file.filename)
             if protocol == "SNMP":
                 return await processSNMP(file.filename)
     except Exception as e:

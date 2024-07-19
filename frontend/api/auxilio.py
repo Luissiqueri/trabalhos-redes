@@ -217,7 +217,7 @@ def grafico_ocorrencia_ipsrc(p):
 #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 def getCompanyByMACAdress(macAdress):
     try:
-        req = requests.get(f"http://www.macvendorlookup.com/api/v2/{macAdress}")
+        req = requests.get(f"https://api.macvendors.com/{macAdress}")
         return req.json()[0]['company']
     except Exception as e:
         return "&lt;desconhecido&gt;"
@@ -364,17 +364,42 @@ def parse_rip_entries_in_packet(dict, p):
 #FUNCÕES PARA O T4 PROTOCOLO UDP
 def handleUDP(p):
     udp_packets = [u for u in p if UDP in u]
+    data = {}
+
     for packet in udp_packets:
-        service_sport = get_service_by_port(packet.sport, "udp")
-        service_dport = get_service_by_port(packet.dport, "udp")
-        packet.conversations()
-        # if service:
-        #print(f"Source port: {packet.sport} --- Service: {service_sport} ==> Destination port: {packet.sport} --- Service: {service_dport}")
-            
-        # print(packet.payload)
-    # print(len(udp_packets))
-    # for i in range(len(udp_packets)):
-        # print(udp_packets[i])
+        src_ip = packet[IP].src
+        dst_ip = packet[IP].dst
+        id_occurrencies = (src_ip, dst_ip)
+
+        if id_occurrencies not in data:
+            data[id_occurrencies] = {
+                'src_ip': src_ip,
+                'dst_ip':dst_ip,
+                'packets': 0,
+                'src_port':[],
+                'dst_port':[],
+                'service_src':[],
+                'service_dst':[]
+            }
+
+        data[id_occurrencies]['packets'] += 1
+
+        if packet.sport not in  data[id_occurrencies]['src_port']:
+            data[id_occurrencies]['src_port'].append(packet.sport)
+            data[id_occurrencies]['service_src'].append(get_service_by_port(packet.sport, "udp"))
+        if packet.dport not in  data[id_occurrencies]['dst_port']:
+            data[id_occurrencies]['dst_port'].append(packet.dport)
+            data[id_occurrencies]['service_dst'].append(get_service_by_port(packet.dport, "udp"))
+
+    # return data
+    d = []
+    for data in data.values():
+        d.append(data)
+    return d
+
+    # for d in data.values():
+    #     print()
+    #     print(d) 
 
 def get_service_by_port(port, protocol):
     try:
@@ -412,45 +437,53 @@ def handleTCP(p):
         #w_size = tcp[TCP].window_size
             
         id_occurrencies = (src_ip, dst_ip)
+      
+        if retransmission == 1 and rtt and rtt > 0:
 
-        if id_occurrencies not in data:
-            data[id_occurrencies] = {
-                'src_ip': src_ip,
-                'dst_ip':dst_ip,
-                'total_bytes':0,
-                'src_port':[],
-                'dst_port':[],
-                'packets': 0,
-                'bytes':[],
-                'n_sequence':[],
-                'w_size': [],
-                'retransmission':[],
-                'RTT':[]
-            }
-            
-            data[id_occurrencies]['src_port'].append(src_port)
-            data[id_occurrencies]['dst_port'].append(dst_port)
-            data[id_occurrencies]['total_bytes'] += len(tcp)
-            data[id_occurrencies]['packets'] += 1
-            data[id_occurrencies]['bytes'].append(len(tcp))
-            data[id_occurrencies]['n_sequence'].append(ts)
-            #data[id_occurrencies]['w_size'].append(w_size)
-            data[id_occurrencies]['retransmission'].append(retransmission)
-            data[id_occurrencies]['RTT'].append(rtt)
+            if id_occurrencies not in data:
+                data[id_occurrencies] = {
+                    'src_ip': src_ip,
+                    'dst_ip':dst_ip,
+                    'total_bytes':0,
+                    'src_port':[],
+                    'dst_port':[],
+                    'packets': 0,
+                    'bytes':[],
+                    'n_sequence':[],
+                    'w_size': [],
+                    'retransmission': [],
+                    'RTT':[]
+                }
+                
+                data[id_occurrencies]['src_port'].append(src_port)
+                data[id_occurrencies]['dst_port'].append(dst_port)
+                data[id_occurrencies]['total_bytes'] += len(tcp)
+                data[id_occurrencies]['packets'] += 1
+                data[id_occurrencies]['bytes'].append(len(tcp))
+                data[id_occurrencies]['n_sequence'].append(ts)
+                data[id_occurrencies]['retransmission'].append(retransmission)
+                data[id_occurrencies]['RTT'].append(rtt)
+                #data[id_occurrencies]['w_size'].append(w_size)
+                # data[id_occurrencies]['retransmission'].append(retransmission)
     
+    d = []
     for connection, info in data.items():
-        src_ip, dst_ip = connection
-        print(f"Connection: {src_ip} -> {dst_ip}")
-        print(f"  Source IP: {info['src_ip']}")
-        print(f"  Destination IP: {info['dst_ip']}")
-        print(f"  Source Ports: {info['src_port']}")
-        print(f"  Destination Ports: {info['dst_port']}")
-        print(f"  Total Packets: {info['packets']}")
-        #total_bytes = sum(info['bytes'])
-        print(f"  Total Bytes Transferred: {info['total_bytes']} bytes")
-        print(f"  Sequence Number: {info['n_sequence']}")
-        print(f"  Retransmission: {info['retransmission']}")
-        print(f"  RTT: {info['RTT']} microssegundos")
+        d.append(info)
+    return d
+    
+    # for connection, info in data.items():
+    #     src_ip, dst_ip = connection
+    #     print(f"Connection: {src_ip} -> {dst_ip}")
+    #     print(f"  Source IP: {info['src_ip']}")
+    #     print(f"  Destination IP: {info['dst_ip']}")
+    #     print(f"  Source Ports: {info['src_port']}")
+    #     print(f"  Destination Ports: {info['dst_port']}")
+    #     print(f"  Total Packets: {info['packets']}")
+    #     #total_bytes = sum(info['bytes'])
+    #     print(f"  Total Bytes Transferred: {info['total_bytes']} bytes")
+    #     print(f"  Sequence Number: {info['n_sequence']}")
+    #     print(f"  Retransmission: {info['retransmission']}")
+    #     print(f"  RTT: {info['RTT']} microssegundos")
 
 def save_content(content, filename):
     with open(filename, "wb") as f:
@@ -499,46 +532,38 @@ def HTTPcontent(p):
                 
 
 def handleDNS(p):
-
-    c = 0
-    occurrencies = 0
-    ips = []
     data = {}
-    domains_data = {}
-    response_pairs = defaultdict(list)
 
     DNSpackets = [d for d in p if DNS in d]
 
     for dns in DNSpackets:
         if dns.qr == 0:  # qr == 0 consulta DNS
-           response_pairs[dns.id].append(dns)
-           
-        elif dns.qr == 1:  # qr == 1 resposta DNS
-            occurrencies += 1
-            ips.append(dns[IP].dst)
-            ips.append(dns[IP].src)
+            src_ip = dns[IP].src
+            domain = dns.qd.qname.decode('utf-8')
+            query_type = dns.qd.qtype
 
-            data[occurrencies] = {
-            'src_ip': dns[IP].dst,
-            'dst_ip':dns[IP].src,
-            'response_time': 0,
-            'domains': [],
-            'types': [],
-            'domains_ips':[]
-            }
-            
-            response_pairs[dns.id].append(dns)
+        elif dns.qr == 1:
+            domain = dns.qd.qname.decode('utf-8')
+            key = (dns[IP].dst, domain)
+            if key not in data:
+                data[key] = {
+                    'src_ip': dns[IP].dst,
+                    'domains': domain,
+                    'count': 0,
+                    'types': [],
+                    'domains_ips':[]
+                }
+                for i in range(dns.ancount):
+                    response = dns.an[i]
+                    data[key]["types"].append(response.type)
+                    data[key]["domains_ips"].append(response.rdata)
 
-            for i in range(dns.ancount):
-                response = dns.an[i]
-                data[occurrencies]["domains"].append(response.rrname.decode('utf-8'))
-                data[occurrencies]["types"].append(response.type)
-                data[occurrencies]["domains_ips"].append(response.rdata)
-
-            occurrencies += 1
-
-    #print(list(set(ips)))
-    DDoS(data)
+            data[key]['count'] += 1
+          
+    d_api = []
+    for d in data.values():
+        d_api.append(d)
+    return d_api
 
 def handleSNMP(p):
     agentPdus = [SNMPinform, SNMPresponse, SNMPtrapv1, SNMPtrapv2]
@@ -573,38 +598,3 @@ def handleSNMP(p):
         "agents": agents,
         "managers": managers
     }
-
-
-def DDoS(data):
-    """
-    sleep_interval = 15
-
-    # Set threshold for number of connections
-    connection_threshold = 1000
-
-    # Initialize list to store previous number of connections
-    previous_connections = []
-
-    total_packets = len(data)
-    unique_ip_count = len(set(entry['src_ip'] for entry in data.values()))
-    for entry in data.values():
-        #print(entry['dst_ip'])
-        #print(entry['src_ip'])
-        print(entry['domains_ips'])
-    print(list(set(entry['src_ip'] for entry in data.values())))
-    print(unique_ip_count)
-
-    
-    if total_packets > connection_threshold:
-        print(f"Possible DDoS Attack detected! High volume of DNS packets: {total_packets}")
-    
-    if unique_ip_count > 50:  
-        print(f"Possible DDoS Attack detected! High number of unique source IPs: {unique_ip_count}")
-
-    print(f"Total DNS packets: {total_packets}, Unique source IPs: {unique_ip_count}")
-
-    # Identificação e bloqueio do atacante
-   if block_attacker:
-        potential_attackers = [entry['src_ip'] for entry in data.values()]
-        for attacker in potential_attackers:
-            os.system(f'netsh advfirewall firewall add rule name="Block IP" dir=in action=block remoteip={attacker}')"""
