@@ -80,15 +80,11 @@ async def communication_graph(p):
             graph[ipSrc][ipDst]['minTTL'] = ttl
 
     graph
-    G = nx.Graph()
-    edgeWidth = []
     publicIpsTTL = {}
 
     for key in graph:
         for dst in graph[key]:
             if dst != "No IP" and key != "No IP":
-                G.add_edge(key, dst)
-                edgeWidth.insert(len(edgeWidth), (graph[key][dst]['times']))
 
                 #capturando pacotes vindos de ips publicos em direcao à rede local
                 #to ignorando outras mascaras para redes locais, eu sei
@@ -111,23 +107,11 @@ async def communication_graph(p):
 
     print("Gráfico mostrando visualmente o fluxo de dados. Largura da aresta = quantidade de vezes que ocorreu")'''
 
-    plt.figure(figsize=(30, 20))
-    pos = nx.kamada_kawai_layout(G)
-
-    nx.draw_networkx_edges(G, pos, alpha=0.7, width=edgeWidth, edge_color="#fa6464")
-    nx.draw_networkx_nodes(G, pos, node_size=14, node_color="#210070", alpha=0.9)
-    label_options = {"ec": "k", "fc": "white", "alpha": 1}
-    nx.draw_networkx_labels(G, pos, font_size=15, bbox=label_options)
-
-    ax = plt.gca()
-    ax.margins(0, 0)
-    plt.axis("off")
-    # print("é aqui?")
-    plt.savefig('graphs/fluxGraph.svg', format='svg')
-    # print("sepah")
-    
-    #plt.show()
-    return publicIpsOrderedByTTL
+    result = {
+        'graph': graph,
+        'ipsInfo': publicIpsOrderedByTTL
+    }
+    return result
 
 def grafico_mapa(publicIpsOrderedByTTL):
     longitude = []

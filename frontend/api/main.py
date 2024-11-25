@@ -6,6 +6,7 @@ import traceback
 # from pydantic import BaseModel
 # import magic
 # import json
+from fastapi.middleware.cors import CORSMiddleware
 
 import auxilio as aux
 
@@ -13,15 +14,30 @@ print("Para acessar a aplicacao: http://localhost:8000/recursos/index.html")
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+# Configure CORS
+origins = [
+    "http://localhost:3000",  # Add your frontend origin(s) here
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allow requests from these origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
 app.mount("/recursos", StaticFiles(directory="../",html = True), name="static")
 app.mount("/output", StaticFiles(directory="output",html = True), name="static")
 app.mount("/graficos", StaticFiles(directory="graphs",html = True), name="graphs")
 
 async def processIP(filename):
     p = aux.lista_pacotes(filename)
-    publicIps = await aux.communication_graph(p)
-    aux.grafico_mapa(publicIps)
-    return {}
+    return await aux.communication_graph(p)
+    # aux.grafico_mapa(publicIps)
+    # return {}
 
 async def processARP(filename):
     p = aux.lista_pacotes(filename)
