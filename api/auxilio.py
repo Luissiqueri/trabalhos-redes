@@ -8,7 +8,7 @@ import pandas as pd
 import scipy as sp
 import socket
 import requests
-from ip2geotools.databases.noncommercial import DbIpCity
+# from ip2geotools.databases.noncommercial import DbIpCity
 from geopy.distance import distance
 from shapely.geometry import Point
 import geopandas as gpd
@@ -18,25 +18,15 @@ import ipinfo
 import json
 from collections import OrderedDict
 import os
+import io
 
 api_key_ipinfo = "c059178683af37"
 
 def lista_pacotes(file):
-    pcap = rdpcap(file)
+    file_in_memory = io.BytesIO(file)
+    pcap = rdpcap(file_in_memory)
     p = PacketList(pcap)
     return p
-
-#print(f"arquivo pcap {pcap}")
-#print(f"tamanho arquivo{len(pcap)}")
-#packet_count = {}
-#contagem_pacotes(pcap, packet_count)
-#grafico_contagem_pacotes(packet_count)
-#print(f"lista de pacotes{p}")
-#print(p[0].show())
-#print(p.nsummary())
-#p.conversations()
-#grafico_ocorrencia_ipsrc(p)
-
 
 def bytes_per_second(packet):
     return len(packet) / packet.time
@@ -80,15 +70,15 @@ async def communication_graph(p):
             graph[ipSrc][ipDst]['minTTL'] = ttl
 
     graph
-    G = nx.Graph()
-    edgeWidth = []
+    # G = nx.Graph()
+    # edgeWidth = []  
     publicIpsTTL = {}
 
     for key in graph:
         for dst in graph[key]:
             if dst != "No IP" and key != "No IP":
-                G.add_edge(key, dst)
-                edgeWidth.insert(len(edgeWidth), (graph[key][dst]['times']))
+                # G.add_edge(key, dst)
+                # edgeWidth.insert(len(edgeWidth), (graph[key][dst]['times']))
 
                 #capturando pacotes vindos de ips publicos em direcao à rede local
                 #to ignorando outras mascaras para redes locais, eu sei
@@ -102,32 +92,14 @@ async def communication_graph(p):
                     publicIpsTTL[key]['location'] = f"{details.city}, {details.country}"
 
     publicIpsOrderedByTTL = dict(sorted(publicIpsTTL.items(), key=lambda x: x[1]['ttl'], reverse=True))
+    # return publicIpsOrderedByTTL
 
-    '''print("Hosts ordenados do mais próximo para o mais longe (baseado no TTL):\n")
+    result = {
+        'graph': graph,
+        'ipsInfo': publicIpsOrderedByTTL
+    }
 
-    for publicIp in publicIpsOrderedByTTL:
-        print(f"{publicIp} TTL = {publicIpsTTL[publicIp]['ttl']}")
-        print(f"({publicIpsTTL[publicIp]['lat']}, {publicIpsTTL[publicIp]['lng']}) - {publicIpsTTL[publicIp]['location']}")
-
-    print("Gráfico mostrando visualmente o fluxo de dados. Largura da aresta = quantidade de vezes que ocorreu")'''
-
-    plt.figure(figsize=(30, 20))
-    pos = nx.kamada_kawai_layout(G)
-
-    nx.draw_networkx_edges(G, pos, alpha=0.7, width=edgeWidth, edge_color="#fa6464")
-    nx.draw_networkx_nodes(G, pos, node_size=14, node_color="#210070", alpha=0.9)
-    label_options = {"ec": "k", "fc": "white", "alpha": 1}
-    nx.draw_networkx_labels(G, pos, font_size=15, bbox=label_options)
-
-    ax = plt.gca()
-    ax.margins(0, 0)
-    plt.axis("off")
-    # print("é aqui?")
-    plt.savefig('graphs/fluxGraph.svg', format='svg')
-    # print("sepah")
-    
-    #plt.show()
-    return publicIpsOrderedByTTL
+    return result
 
 def grafico_mapa(publicIpsOrderedByTTL):
     longitude = []
@@ -145,17 +117,7 @@ def grafico_mapa(publicIpsOrderedByTTL):
                 rep[i]+=1
     data = {'Longitude': longitude, 'Latitude': latitude, 'Repeticoes': rep}
     df = pd.DataFrame(data)
-    geometry = [Point(xy) for xy in zip(df['Longitude'], df['Latitude'])]
-    gdf = GeoDataFrame(df, geometry=geometry)
-    
-    shapedFilePath = "./world/ne_110m_admin_0_countries.shp"
-    world = gpd.read_file(shapedFilePath)
-    
-    ax = world.plot(figsize=(10, 6))
-    gdf.plot(ax=ax, marker='o', color='red', markersize=df['Repeticoes']*5);
-    ax.get_figure().savefig('graphs/locationsGraph.svg')
-
-
+    return df.to_dict(orient="records")
 
 def contagem_pacotes(pcap, packet_count):
     for packet in pcap:
@@ -213,14 +175,16 @@ def grafico_ocorrencia_ipsrc(p):
     "layout":plotly.graph_objs.Layout(title="Source IP Occurrence",
     xaxis=dict(title="Src IP"), yaxis=dict(title="Count"))})
 
-#precisamos ve se isto esta funcionando
-#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 def getCompanyByMACAdress(macAdress):
-    try:
-        req = requests.get(f"https://api.macvendors.com/{macAdress}")
-        return req.json()[0]['company']
-    except Exception as e:
-        return "&lt;desconhecido&gt;"
+    csvFile = "./api/oui.csv"
+
+    data = pd.read_csv(csvFile)
+    prefixoMac = macAdress.replace(":", "")[:6].upper()
+    resultado = data[data["Assignment"].str.contains(prefixoMac, na=False)]
+    if resultado.empty:
+        return "UNDEFINED"
+    name = resultado['Organization Name'].values[0]
+    return name
 
 def getSrcIP(packet):
     if ARP in packet:
@@ -248,7 +212,6 @@ def getDstMAC(packet):
 
 
 def getARPInfo(p):
-
     SrcIP = []
     DstIP = []
     SrcMAC = []
