@@ -70,15 +70,11 @@ async def communication_graph(p):
             graph[ipSrc][ipDst]['minTTL'] = ttl
 
     graph
-    # G = nx.Graph()
-    # edgeWidth = []  
     publicIpsTTL = {}
 
     for key in graph:
         for dst in graph[key]:
             if dst != "No IP" and key != "No IP":
-                # G.add_edge(key, dst)
-                # edgeWidth.insert(len(edgeWidth), (graph[key][dst]['times']))
 
                 #capturando pacotes vindos de ips publicos em direcao à rede local
                 #to ignorando outras mascaras para redes locais, eu sei
