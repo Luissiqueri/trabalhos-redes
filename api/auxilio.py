@@ -252,7 +252,10 @@ def handleRIP(p):
     intervals = time(p)
     table = []
 
-    for index, value in enumerate(p):
+    print(len(intervals))
+    rip_packets = [r for r in p if RIP in r]
+
+    for index, value in enumerate(rip_packets):
         # print("\n")
         # print(f'Intervalos de tempo entre atualizações RIP (em segundos): {intervals[index - 1]}s')
         table.append({"src": value.getlayer(IP).src, "dst": value.getlayer(IP).dst, "time": float(intervals[index - 1]), "table": []})
@@ -266,8 +269,12 @@ def time(rip):
     # Extrair horários dos pacotes RIP
     timestamps = [pkt.time for pkt in rip_packets]
     
-    # Caclular intervalos entre pacotes sucessivos 
-    intervals = [timestamps[i] - timestamps[i-1] for i in range(1, len(timestamps))]
+    # Caclular intervalos entre pacotes sucessivos
+    intervals = []
+    if len(timestamps) > 1:
+        intervals = [timestamps[i] - timestamps[i-1] for i in range(1, len(timestamps))]
+    else:
+        intervals = [0]
 
     # Converter para segundos
     intervalsInSeconds = [interval for interval in intervals]
