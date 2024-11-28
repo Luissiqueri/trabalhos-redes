@@ -9,7 +9,7 @@ import auxilio as aux
 
 app = FastAPI()
 
-origins = ["http://localhost", "http://localhost:3000"]
+origins = ["https://jai-front-tawny.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,
