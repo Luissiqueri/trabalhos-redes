@@ -4,7 +4,6 @@ scapy
 matplotlib
 scapy
 matplotlib
-collections
 plotly
 networkx
 pandas
