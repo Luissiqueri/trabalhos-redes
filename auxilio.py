@@ -174,7 +174,7 @@ def grafico_ocorrencia_ipsrc(p):
     xaxis=dict(title="Src IP"), yaxis=dict(title="Count"))})
 
 def getCompanyByMACAdress(macAdress):
-    csvFile = "./api/oui.csv"
+    csvFile = "./oui.csv"
 
     data = pd.read_csv(csvFile)
     prefixoMac = macAdress.replace(":", "")[:6].upper()
